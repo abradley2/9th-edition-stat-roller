@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Accessibility.Widget exposing (required)
-import Array.Extra exposing (apply)
 import Browser exposing (element)
 import Html as H
 import Html.Attributes as A
@@ -449,7 +448,23 @@ run_ seed setup phase nextPhase =
                         (Damage nextDamageDice)
 
         ( Damage dice, Resolve woundCount ) ->
-            -1
+            case dice of
+                [] ->
+                    run_
+                        seed
+                        setup
+                        (Resolve woundCount)
+                        (Resolve woundCount)
+                currentRoll :: nextRolls ->
+                    let
+                        (nextSeed, rollVal, _) = rollDie seed currentRoll 
+                            |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
+                    in
+                        run_
+                            nextSeed
+                            setup
+                            (Damage nextRolls)
+                            (Resolve <| woundCount + rollVal)
 
         ( Resolve result, _ ) ->
             result
