@@ -69,125 +69,159 @@ update msg model =
             ( model, EffCmd Cmd.none )
 
 
+cardView : H.Html a -> H.Html a
+cardView body =
+    H.div
+        [ A.class "pa2 w-50 w-33-m w-25-l" ]
+        [ H.div
+            [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
+            ]
+            [ body ]
+        ]
+
+
 view : Model -> H.Html Msg
 view model =
     H.div
-        [ A.class "helvetica pa3 bg-black-90 white-80"
+        [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row w-80-m center-m"
         ]
-        [ H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "3+"
-                , A.id "weapon-skill"
+        [ cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "3+"
+                    , A.id "weapon-skill"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "weapon-skill"
+                    ]
+                    [ H.text "Weapon/Ballistic Skill"
+                    ]
                 ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "weapon-skill"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "2"
+                    , A.id "attacks-per-unit"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "attacks-per-unit"
+                    ]
+                    [ H.text "Number of Attacking Units" ]
                 ]
-                [ H.text "Weapon/Ballistic Skill"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "2"
+                    , A.id "attacks-per-weapon"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "attacks-per-weapon"
+                    ]
+                    [ H.text "Attacks per Unit" ]
                 ]
-            ]
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "2"
-                , A.id "attacks-per-unit"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "4"
+                    , A.id "strength"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "strength"
+                    ]
+                    [ H.text "Strength" ]
                 ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "attacks-per-unit"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "-2"
+                    , A.id "armor-penetration"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "armor-penetration"
+                    ]
+                    [ H.text "Armor Penetration" ]
                 ]
-                [ H.text "Number of Attacking Units" ]
-            ]
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "2"
-                , A.id "attacks-per-weapon"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "D3"
+                    , A.id "damage-dice"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "damage-dice"
+                    ]
+                    [ H.text "Damage" ]
                 ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "attacks-per-weapon"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "4"
+                    , A.id "toughness"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "toughness"
+                    ]
+                    [ H.text "Toughness" ]
                 ]
-                [ H.text "Attacks per Unit" ]
-            ]
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "4"
-                , A.id "strength"
+        , cardView <|
+            H.div
+                [ A.class "pv2 inline-flex flex-column items-center" ]
+                [ textInputView
+                    [ required True
+                    , A.class "w2"
+                    , A.placeholder "5+"
+                    , A.id "save"
+                    ]
+                    (always NoOp)
+                , H.br [] []
+                , H.label
+                    [ A.class "f7 fw5"
+                    , A.for "save"
+                    ]
+                    [ H.text "Armor/Invulnerable Save" ]
                 ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "strength"
-                ]
-                [ H.text "Strength" ]
-            ]
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "-2"
-                , A.id "armor-penetration"
-                ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "armor-penetration"
-                ]
-                [ H.text "Armor Penetration" ]
-            ]
-        , H.hr [] []
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "4"
-                , A.id "toughness"
-                ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "toughness"
-                ]
-                [ H.text "Toughness" ]
-            ]
-        , H.div
-            [ A.class "pv2" ]
-            [ textInputView
-                [ required True
-                , A.class "w2"
-                , A.placeholder "5+"
-                , A.id "save"
-                ]
-                (always NoOp)
-            , H.br [] []
-            , H.label
-                [ A.class "f7 fw5"
-                , A.for "save"
-                ]
-                [ H.text "Armor/Invulnerable Save" ]
-            ]
         ]
 
 
@@ -208,8 +242,8 @@ textInputView attrs onInput =
          , A.spellcheck False
          , A.autocomplete False
          , A.class <|
-            "input-reset ba bg-black-40 white-80 hover-bn"
-                ++ " br-0 bt-0 outline-0 ph2 pv2 hover-bg-black-10"
+            "input-reset ba bg-black-40 light-blue hover-bn"
+                ++ " br-0 bt-0 outline-0 ph2 pv2 hover-bg-black-10 tc b--light-blue"
          ]
             ++ attrs
         )
@@ -455,16 +489,18 @@ run_ seed setup phase nextPhase =
                         setup
                         (Resolve woundCount)
                         (Resolve woundCount)
+
                 currentRoll :: nextRolls ->
                     let
-                        (nextSeed, rollVal, _) = rollDie seed currentRoll 
-                            |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
+                        ( nextSeed, rollVal, _ ) =
+                            rollDie seed currentRoll
+                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
                     in
-                        run_
-                            nextSeed
-                            setup
-                            (Damage nextRolls)
-                            (Resolve <| woundCount + rollVal)
+                    run_
+                        nextSeed
+                        setup
+                        (Damage nextRolls)
+                        (Resolve <| woundCount + rollVal)
 
         ( Resolve result, _ ) ->
             result
