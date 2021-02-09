@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Accessibility.Widget exposing (required)
+import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Html as H
 import Html.Attributes as A
@@ -9,7 +10,6 @@ import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Random exposing (Seed)
 import Result.Extra as ResultX
-import Basics.Extra exposing (flip)
 
 
 type Effect
@@ -77,11 +77,17 @@ update msg model =
 cardView : H.Html a -> H.Html a
 cardView body =
     H.div
-        [ A.class "pa2 w-50 w-33-m w-25-l" ]
+        [ A.class "pa2 w-50 w-33-m w-25-l relative" ]
         [ H.div
             [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
             ]
             [ body ]
+        , H.button
+            [ A.class <|
+                "absolute top-0 right-0 fas fa-cogs black-80 ba b--light-blue bg-light-blue "
+                    ++ "pointer outline-0 br2 pa2 shadow-1"
+            ]
+            []
         ]
 
 
@@ -91,10 +97,14 @@ resultDisplay seeds =
         allResult =
             seeds
                 |> List.map (flip run <| sampleSetup)
-                
-        total = toFloat (List.foldr (+) 0 allResult) / toFloat (List.length allResult)
+
+        total =
+            toFloat (List.foldr (+) 0 allResult) / toFloat (List.length allResult)
     in
-    H.h3 [] [ H.text <| String.fromFloat total ]
+    H.h3
+        [ A.class "ma0"
+        ]
+        [ H.text <| String.fromFloat total ]
 
 
 layout : Model -> H.Html Msg
@@ -437,7 +447,6 @@ run_ seed setup phase nextPhase =
                                     |> Maybe.map (\mod -> applyModifier currentRoll mod ( rollValue_, nextSeed_ ))
                                     |> Maybe.withDefault ( nextSeed_, rollValue_, Nothing )
 
-
                             nextWounds =
                                 if rollValue >= currentRoll.passValue then
                                     Die 6 (woundPassValue setup) nextMod :: woundDice
@@ -467,11 +476,11 @@ run_ seed setup phase nextPhase =
                                 |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
 
                         modWithAp =
-                                Batch
-                                    [ MaybeMod nextMod
-                                    , SubtractValue setup.armorPenetration
-                                    ]
-                                    |> Just
+                            Batch
+                                [ MaybeMod nextMod
+                                , SubtractValue setup.armorPenetration
+                                ]
+                                |> Just
 
                         nextSaves =
                             if rollValue >= currentRoll.passValue then
