@@ -5,9 +5,11 @@ import Browser exposing (element)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
+import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Random exposing (Seed)
 import Result.Extra as ResultX
+import Basics.Extra exposing (flip)
 
 
 type Effect
@@ -31,6 +33,7 @@ type Msg
 
 type alias Flags =
     { seed : Seed
+    , seeds : List Seed
     }
 
 
@@ -45,9 +48,10 @@ init flagsJson =
     let
         flagsResult =
             D.decodeValue
-                (D.map
+                (D.map2
                     Flags
                     (D.at [ "seed" ] D.int |> D.map Random.initialSeed)
+                    (D.at [ "seeds" ] (D.list (D.map Random.initialSeed D.int)))
                 )
                 flagsJson
     in
@@ -55,6 +59,7 @@ init flagsJson =
       , flags =
             Result.withDefault
                 { seed = Random.initialSeed 0
+                , seeds = [ Random.initialSeed 0 ]
                 }
                 flagsResult
       }
@@ -77,6 +82,28 @@ cardView body =
             [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
             ]
             [ body ]
+        ]
+
+
+resultDisplay : List Seed -> H.Html Msg
+resultDisplay seeds =
+    let
+        allResult =
+            seeds
+                |> List.map (flip run <| sampleSetup)
+                
+        total = toFloat (List.foldr (+) 0 allResult) / toFloat (List.length allResult)
+    in
+    H.h3 [] [ H.text <| String.fromFloat total ]
+
+
+layout : Model -> H.Html Msg
+layout model =
+    H.div
+        []
+        [ lazy resultDisplay model.flags.seeds
+        , view
+            model
         ]
 
 
@@ -231,7 +258,7 @@ main =
         { update = \msg model -> update msg model |> Tuple.mapSecond fromEffect
         , init = init >> Tuple.mapSecond fromEffect
         , subscriptions = \_ -> Sub.none
-        , view = view
+        , view = layout
         }
 
 
@@ -410,15 +437,10 @@ run_ seed setup phase nextPhase =
                                     |> Maybe.map (\mod -> applyModifier currentRoll mod ( rollValue_, nextSeed_ ))
                                     |> Maybe.withDefault ( nextSeed_, rollValue_, Nothing )
 
-                            modWithAp =
-                                Batch
-                                    [ MaybeMod nextMod
-                                    , SubtractValue setup.armorPenetration
-                                    ]
 
                             nextWounds =
                                 if rollValue >= currentRoll.passValue then
-                                    Die 6 (woundPassValue setup) (Just modWithAp) :: woundDice
+                                    Die 6 (woundPassValue setup) nextMod :: woundDice
 
                                 else
                                     woundDice
@@ -436,7 +458,7 @@ run_ seed setup phase nextPhase =
                         seed
                         setup
                         (Save saveDice)
-                        (Resolve 0)
+                        (Damage [])
 
                 currentRoll :: nextRolls ->
                     let
@@ -444,9 +466,16 @@ run_ seed setup phase nextPhase =
                             rollDie seed currentRoll
                                 |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
 
+                        modWithAp =
+                                Batch
+                                    [ MaybeMod nextMod
+                                    , SubtractValue setup.armorPenetration
+                                    ]
+                                    |> Just
+
                         nextSaves =
                             if rollValue >= currentRoll.passValue then
-                                Die 6 setup.save nextMod :: saveDice
+                                Die 6 setup.save modWithAp :: saveDice
 
                             else
                                 saveDice
@@ -469,7 +498,7 @@ run_ seed setup phase nextPhase =
                                 |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
 
                         nextDamageDice =
-                            if rollValue >= currentRoll.passValue then
+                            if rollValue < currentRoll.passValue then
                                 Die setup.damage 0 nextMod :: damageDice
 
                             else
@@ -478,7 +507,7 @@ run_ seed setup phase nextPhase =
                     run_
                         nextSeed
                         setup
-                        (Wound nextRolls)
+                        (Save nextRolls)
                         (Damage nextDamageDice)
 
         ( Damage dice, Resolve woundCount ) ->
@@ -505,8 +534,46 @@ run_ seed setup phase nextPhase =
         ( Resolve result, _ ) ->
             result
 
-        _ ->
+        ( a, b ) ->
+            let
+                c =
+                    Debug.log "phase = " ( printPhase a, printPhase b )
+            in
             -1
+
+
+printPhase : Phase -> String
+printPhase p =
+    case p of
+        Attack _ ->
+            "Attack"
+
+        Wound _ ->
+            "Wound"
+
+        Save _ ->
+            "Save"
+
+        Damage _ ->
+            "Damage"
+
+        Resolve _ ->
+            "Resolve"
+
+
+sampleSetup : Setup
+sampleSetup =
+    Setup
+        20
+        Nothing
+        4
+        Nothing
+        3
+        Nothing
+        4
+        1
+        0
+        3
 
 
 run : Random.Seed -> Setup -> Int

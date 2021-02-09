@@ -6,9 +6,12 @@ document.body.appendChild(node)
 
 const seed = crypto.getRandomValues(new Uint16Array(1))[0]
 
+const seeds = crypto.getRandomValues(new Uint16Array(1000))
+
 Elm.Main.init({
   node,
   flags: {
-    seed
+    seed,
+    seeds: [...seeds]
   }
 })
