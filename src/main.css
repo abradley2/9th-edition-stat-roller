@@ -1,0 +1,16 @@
+.bottom--0 {
+    bottom: 0%;
+}
+
+.bottom--100 {
+    bottom: 100%;
+}
+
+*:focus {
+    outline: 1px solid rgba(150, 204, 255, 0.3);
+    outline-offset: 0.2rem;
+}
+
+button.hover-white > .fa {
+    color: white;
+} 

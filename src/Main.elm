@@ -1,19 +1,25 @@
 module Main exposing (..)
 
-import Accessibility.Widget exposing (required)
+import Accessibility.Aria exposing (labelledBy)
+import Accessibility.Role exposing (dialog)
+import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
+import Browser.Dom as Dom
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
+import ModifierForm
 import Random exposing (Seed)
 import Result.Extra as ResultX
+import Task
 
 
 type Effect
     = EffCmd (Cmd Msg)
+    | EffFocusElement String
     | EffBatch (List Effect)
 
 
@@ -23,12 +29,19 @@ fromEffect eff =
         EffCmd cmd ->
             cmd
 
+        EffFocusElement elementId ->
+            Task.attempt ElementFocused (Dom.focus elementId)
+
         EffBatch cmds ->
             List.map fromEffect cmds |> Cmd.batch
 
 
 type Msg
     = NoOp
+    | ElementFocused (Result Dom.Error ())
+    | OptionsButtonClicked String
+    | CloseModalButtonClicked
+    | ModifierFormMsg ModifierForm.Msg
 
 
 type alias Flags =
@@ -40,6 +53,8 @@ type alias Flags =
 type alias Model =
     { initialized : Bool
     , flags : Flags
+    , modalOpen : ( String, Bool )
+    , modifierForm : ModifierForm.Model
     }
 
 
@@ -56,6 +71,8 @@ init flagsJson =
                 flagsJson
     in
     ( { initialized = ResultX.isOk flagsResult
+      , modalOpen = ( "", False )
+      , modifierForm = ModifierForm.init ModifierForm.AttackMod
       , flags =
             Result.withDefault
                 { seed = Random.initialSeed 0
@@ -70,24 +87,104 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
+        ModifierFormMsg modifierFormMsg ->
+            let
+                ( modifierForm, modifierFormCmd ) =
+                    ModifierForm.update
+                        modifierFormMsg
+                        model.modifierForm
+                        |> Tuple.mapSecond (Cmd.map ModifierFormMsg)
+            in
+            ( { model
+                | modifierForm = modifierForm
+              }
+            , EffCmd modifierFormCmd
+            )
+
+        ElementFocused _ ->
+            ( model, EffCmd Cmd.none )
+
+        CloseModalButtonClicked ->
+            ( { model
+                | modalOpen = ( "", False )
+              }
+            , EffFocusElement <| Tuple.first model.modalOpen
+            )
+
+        OptionsButtonClicked optionId ->
+            ( { model
+                | modalOpen = ( optionId, True )
+              }
+            , EffFocusElement "modal-view"
+            )
+
         NoOp ->
             ( model, EffCmd Cmd.none )
 
 
-cardView : H.Html a -> H.Html a
-cardView body =
+cardView : String -> H.Html Msg -> H.Html Msg
+cardView optionId body =
     H.div
         [ A.class "pa2 w-50 w-33-m w-25-l relative" ]
         [ H.div
             [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
             ]
             [ body ]
-        , H.button
-            [ A.class <|
-                "absolute top-0 right-0 fas fa-cogs black-80 ba b--light-blue bg-light-blue "
-                    ++ "pointer outline-0 br2 pa2 shadow-1"
+        , iconButtonView
+            [ A.class "fas fa-cogs"
+            , A.id <| optionId ++ "--modal-button"
+            , hasDialogPopUp
+            , E.onClick <| OptionsButtonClicked (optionId ++ "--modal-button")
             ]
             []
+        ]
+
+
+iconButtonView : List (H.Attribute a) -> List (H.Html a) -> H.Html a
+iconButtonView attrs children =
+    H.button
+        ((A.class <|
+            " absolute top-0 right-0 black-80 ba b--light-blue bg-light-blue "
+                ++ " hover-bg-transparent hover-white grow "
+                ++ " pointer outline-0 br2 pa2 shadow-1 "
+         )
+            :: attrs
+        )
+        children
+
+
+modalView : Model -> H.Html Msg
+modalView model =
+    H.div
+        [ A.classList
+            [ ( "fixed top-0 left-0 right-0 bg-white-30 overflow-hidden", True )
+            , ( "bottom--100", Tuple.second model.modalOpen == False )
+            , ( "bottom-0", Tuple.second model.modalOpen == True )
+            ]
+        , A.style "transition" ".3s"
+        , dialog
+        ]
+        [ H.div
+            [ A.classList
+                [ ( "relative w5 w-40-l h4 center bg-black br3 ba b--light-blue shadow-1", True )
+                , ( "pa2 flex flex-column justify-start items-center", True )
+                , ( "mt0", Tuple.second model.modalOpen == False )
+                , ( "mt6", Tuple.second model.modalOpen == True )
+                ]
+            , A.style "transition" ".6s"
+            , A.id "modal-view"
+            , modal True
+            , A.tabindex 0
+            ]
+            [ iconButtonView
+                [ A.class "fas fa-times ph2 pv1 absolute top-0 right-0 nt2 nr2"
+                , E.onClick CloseModalButtonClicked
+                ]
+                []
+            , H.map
+                ModifierFormMsg
+                ModifierForm.view
+            ]
         ]
 
 
@@ -101,10 +198,7 @@ resultDisplay seeds =
         total =
             toFloat (List.foldr (+) 0 allResult) / toFloat (List.length allResult)
     in
-    H.h3
-        [ A.class "ma0"
-        ]
-        [ H.text <| String.fromFloat total ]
+    H.text ""
 
 
 layout : Model -> H.Html Msg
@@ -112,8 +206,8 @@ layout model =
     H.div
         []
         [ lazy resultDisplay model.flags.seeds
-        , view
-            model
+        , view model
+        , modalView model
         ]
 
 
@@ -122,7 +216,7 @@ view model =
     H.div
         [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row w-80-m center-m"
         ]
-        [ cardView <|
+        [ cardView "weapon-skill" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -140,7 +234,7 @@ view model =
                     [ H.text "Weapon/Ballistic Skill"
                     ]
                 ]
-        , cardView <|
+        , cardView "attacks-per-unit" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -157,7 +251,7 @@ view model =
                     ]
                     [ H.text "Number of Attacking Units" ]
                 ]
-        , cardView <|
+        , cardView "attacks-per-weapon" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -174,7 +268,7 @@ view model =
                     ]
                     [ H.text "Attacks per Unit" ]
                 ]
-        , cardView <|
+        , cardView "strength" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -191,7 +285,7 @@ view model =
                     ]
                     [ H.text "Strength" ]
                 ]
-        , cardView <|
+        , cardView "armor-penetration" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -208,7 +302,7 @@ view model =
                     ]
                     [ H.text "Armor Penetration" ]
                 ]
-        , cardView <|
+        , cardView "damage-dice" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -225,7 +319,7 @@ view model =
                     ]
                     [ H.text "Damage" ]
                 ]
-        , cardView <|
+        , cardView "toughness" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView
@@ -242,7 +336,7 @@ view model =
                     ]
                     [ H.text "Toughness" ]
                 ]
-        , cardView <|
+        , cardView "save" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ textInputView

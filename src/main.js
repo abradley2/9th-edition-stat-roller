@@ -1,5 +1,8 @@
 import { Elm } from './Main.elm'
 
+const loader = document.getElementById('loader')
+document.body.removeChild(loader)
+
 const node = document.createElement('div')
 
 document.body.appendChild(node)
