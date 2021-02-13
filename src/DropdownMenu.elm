@@ -55,15 +55,15 @@ view model config =
         []
         [ H.button
             [ A.class <|
-                "black-80 ba b--light-blue bg-light-blue helvetica "
-                    ++ " pointer outline-0 br2 pa2 shadow-1 "
+                "black-80 b--light-blue light-blue bg-black helvetica button-reset "
+                    ++ " pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5"
             , hasMenuPopUp
             , E.onClick (ToggleMenuOpen (not model))
             , A.id config.id
             ]
             [ H.span [] [ H.text "Select Modifier" ]
             , H.i
-                [ A.class "fas fa-caret-down black-70 pl2" ]
+                [ A.class "fas fa-caret-down pl2" ]
                 []
             ]
         , H.div
