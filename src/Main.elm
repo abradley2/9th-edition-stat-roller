@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Accessibility.Aria exposing (labelledBy)
 import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
@@ -155,26 +154,31 @@ iconButtonView attrs children =
 
 modalView : Model -> H.Html Msg
 modalView model =
+    let
+        isOpen =
+            Tuple.second model.modalOpen
+    in
     H.div
         [ A.classList
             [ ( "fixed top-0 left-0 right-0 bg-white-30 overflow-hidden", True )
-            , ( "bottom--100", Tuple.second model.modalOpen == False )
-            , ( "bottom-0", Tuple.second model.modalOpen == True )
+            , ( "bottom--100", isOpen == False )
+            , ( "bottom-0", isOpen == True )
             ]
         , A.style "transition" ".3s"
         , dialog
         ]
-        [ H.div
+        [ H.node "focus-trap"
             [ A.classList
                 [ ( "relative w5 w-40-l h4 center bg-black br3 ba b--light-blue shadow-1", True )
                 , ( "pa2 flex flex-column justify-start items-center", True )
-                , ( "mt0", Tuple.second model.modalOpen == False )
-                , ( "mt6", Tuple.second model.modalOpen == True )
+                , ( "mt0", isOpen == False )
+                , ( "mt6", isOpen == True )
                 ]
             , A.style "transition" ".6s"
             , A.id "modal-view"
             , modal True
-            , A.tabindex 0
+            , A.tabindex <| if isOpen then 0 else -1
+            , A.attribute "active" <| if isOpen then "true" else "false"
             ]
             [ iconButtonView
                 [ A.class "fas fa-times ph2 pv1 absolute top-0 right-0 nt2 nr2"
@@ -183,8 +187,9 @@ modalView model =
                 []
             , H.map
                 ModifierFormMsg
-                ModifierForm.view
+                (ModifierForm.view model.modifierForm { id = "my-form" })
             ]
+        , H.button [ A.class "o-0" ] []
         ]
 
 

@@ -1,3 +1,25 @@
+body {
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+#loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+#noscript {
+  text-align: center;
+  padding: 80px;
+  font-size: 24px;
+  color: white;
+}
+
 .bottom--0 {
     bottom: 0%;
 }
@@ -6,11 +28,15 @@
     bottom: 100%;
 }
 
+* {
+  transition: outline-offset 0.6s;
+}
+
 *:focus {
-    outline: 1px solid rgba(150, 204, 255, 0.3);
+    outline: 1px solid rgba(150, 204, 255, 0.5);
     outline-offset: 0.2rem;
 }
 
 button.hover-white > .fa {
     color: white;
-} 
+}

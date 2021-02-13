@@ -1,5 +1,6 @@
 module ModifierForm exposing (..)
 
+import DropdownMenu
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
@@ -23,27 +24,46 @@ fromEffect eff =
 
 
 type alias Model =
-    {}
+    { dropdownMenu : DropdownMenu.Model
+    }
 
 
 type Msg
     = NoOp
+    | DropdownMenuMsg (DropdownMenu.Msg String)
 
 
-type Config
+type ConfigType
     = AttackMod
     | WoundMod
     | SaveMod
 
 
-init : Config -> Model
-init config =
-    {}
+init : ConfigType -> Model
+init configType =
+    { dropdownMenu = DropdownMenu.init
+    }
 
 
 update_ : Msg -> Model -> ( Model, Effect )
 update_ msg model =
-    ( model, EffCmd Cmd.none )
+    case msg of
+        DropdownMenuMsg dropdownMenuMsg ->
+            let
+                ( dropdownMenu, dropdownMenuCmd ) =
+                    DropdownMenu.update
+                        dropdownMenuMsg
+                        model.dropdownMenu
+                        |> Tuple.mapSecond (Cmd.map DropdownMenuMsg)
+            in
+            ( { model
+                | dropdownMenu = dropdownMenu
+              }
+            , EffCmd dropdownMenuCmd
+            )
+
+        _ ->
+            ( model, EffCmd Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -51,18 +71,23 @@ update msg model =
     update_ msg model |> Tuple.mapSecond fromEffect
 
 
-view : H.Html Msg
-view =
+type alias Config =
+    { id : String
+    }
+
+
+view : Model -> Config -> H.Html Msg
+view model config =
     H.div
         []
-        [ H.button
-            [ A.class <|
-                "black-80 ba b--light-blue bg-light-blue helvetica "
-                    ++ " pointer outline-0 br2 pa2 shadow-1 "
-            ]
-            [ H.span [] [ H.text "Select Modifier" ]
-            , H.i
-                [ A.class "fas fa-caret-down black-70 pl2" ]
-                []
-            ]
+        [ DropdownMenu.view model.dropdownMenu
+            { label = "Sample dropdown"
+            , id = config.id ++ "--compare-condition-dropdown"
+            , items =
+                [ ( "Uno", "One" )
+                , ( "Due", "Two" )
+                , ( "Tre", "Three" )
+                ]
+            }
+            |> H.map DropdownMenuMsg
         ]
