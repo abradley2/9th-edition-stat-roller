@@ -4,6 +4,7 @@ import DropdownMenu
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
+import Run exposing (Compare(..))
 
 
 type Effect
@@ -30,7 +31,7 @@ type alias Model =
 
 type Msg
     = NoOp
-    | DropdownMenuMsg (DropdownMenu.Msg String)
+    | DropdownMenuMsg (DropdownMenu.Msg Compare)
 
 
 type ConfigType
@@ -81,12 +82,13 @@ view model config =
     H.div
         []
         [ DropdownMenu.view model.dropdownMenu
-            { label = "Sample dropdown"
+            { selectedLabel = Nothing
+            , placeholder = "Compare condition"
             , id = config.id ++ "--compare-condition-dropdown"
             , items =
-                [ ( "Uno", "One" )
-                , ( "Due", "Two" )
-                , ( "Tre", "Three" )
+                [ ( Eq, "Equal to" )
+                , ( Lte, "Less than or equal to" )
+                , ( Gte, "Greater than or equal to" )
                 ]
             }
             |> H.map DropdownMenuMsg

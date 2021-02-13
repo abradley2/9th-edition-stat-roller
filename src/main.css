@@ -45,7 +45,6 @@ body {
 }
 
 *:focus {
-
     animation-name: outlineloop;
     animation-duration: 1s;
     animation-iteration-count: infinite;

@@ -43,7 +43,8 @@ type alias Model =
 
 
 type alias Config a =
-    { label : String
+    { selectedLabel : Maybe String
+    , placeholder : String
     , items : List ( a, String )
     , id : String
     }
@@ -55,13 +56,18 @@ view model config =
         []
         [ H.button
             [ A.class <|
-                "black-80 b--light-blue light-blue bg-black helvetica button-reset "
-                    ++ " pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5"
+                "black-80 b--light-blue bg-black helvetica button-reset "
+                    ++ " pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5 "
+                    ++ (config.selectedLabel |> Maybe.map (always "light-blue") |> Maybe.withDefault "white-50")
             , hasMenuPopUp
             , E.onClick (ToggleMenuOpen (not model))
             , A.id config.id
             ]
-            [ H.span [] [ H.text "Select Modifier" ]
+            [ H.span
+                []
+                [ H.text <|
+                    Maybe.withDefault config.placeholder config.selectedLabel
+                ]
             , H.i
                 [ A.class "fas fa-caret-down pl2" ]
                 []
@@ -96,4 +102,4 @@ buttonView menuId ( value, label ) =
                 ++ "pointer hover-bg-white-20"
         , E.onClick <| ItemSelected ( value, label ) menuId
         ]
-        [ H.text "label" ]
+        [ H.text label ]
