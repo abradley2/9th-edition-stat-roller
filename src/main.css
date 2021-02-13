@@ -30,14 +30,18 @@ body {
 
 @keyframes outlineloop {
   from {
-    outline: 1px solid rgba(150, 204, 255, 1);
+    outline: 1px solid rgba(255, 244, 94, 1);
     outline-offset: 0.1rem;
   }
 
   to {
-    outline: 1px solid rgba(150, 204, 255, 0);
+    outline: 1px solid  rgba(255, 244, 0, 0);
     outline-offset: 0.3rem;
   }
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 * {

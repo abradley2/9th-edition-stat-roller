@@ -9,7 +9,7 @@ export default class FocusTrap extends HTMLElement {
 
   attributeChangedCallback (name, oldVal, newVal) {
     const node = this
-    node.tabIndex = 0
+
     if (name === 'active') {
       const active = newVal === 'true'
 

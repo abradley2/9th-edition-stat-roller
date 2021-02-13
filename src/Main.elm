@@ -177,19 +177,33 @@ modalView model =
             , A.style "transition" ".6s"
             , A.id "modal-view"
             , modal True
-            , A.tabindex <| if isOpen then 0 else -1
-            , A.attribute "active" <| if isOpen then "true" else "false"
+            , A.tabindex <|
+                if isOpen then
+                    0
+
+                else
+                    -1
+            , A.attribute "active" <|
+                if isOpen then
+                    "true"
+
+                else
+                    "false"
             ]
             [ iconButtonView
                 [ A.class "fas fa-times ph2 pv1 absolute top-0 right-0 nt2 nr2"
                 , E.onClick CloseModalButtonClicked
                 ]
                 []
-            , H.map
-                ModifierFormMsg
-                (ModifierForm.view model.modifierForm { id = "my-form" })
+            , if isOpen then
+                H.map
+                    ModifierFormMsg
+                    (ModifierForm.view model.modifierForm { id = "my-form" })
+
+              else
+                H.text ""
             ]
-        , H.button [ A.class "o-0" ] []
+        , if isOpen then H.button [ A.class "o-0" ] [] else H.text ""
         ]
 
 
