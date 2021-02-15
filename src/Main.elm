@@ -161,7 +161,7 @@ modalView model =
     in
     H.div
         [ A.classList
-            [ ( "fixed top-0 left-0 right-0 bg-white-30 overflow-hidden", True )
+            [ ( "fixed helvetica top-0 left-0 right-0 bg-white-30 overflow-hidden", True )
             , ( "bottom--100", isOpen == False )
             , ( "bottom-0", isOpen == True )
             ]
@@ -170,7 +170,7 @@ modalView model =
         ]
         [ H.node "focus-trap"
             [ A.classList
-                [ ( "relative w-90 w-70-m w-50-l h4 center bg-black-70 br3 ba b--light-blue shadow-1", True )
+                [ ( "relative w-90 w-70-m w-50-l center bg-black-70 br3 ba b--light-blue shadow-1", True )
                 , ( "pa2 db", True )
                 , ( "mt0", isOpen == False )
                 , ( "mt6", isOpen == True )
@@ -245,7 +245,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "3+"
                     , A.id "weapon-skill"
                     ]
@@ -263,7 +263,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "2"
                     , A.id "attacks-per-unit"
                     ]
@@ -280,7 +280,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "2"
                     , A.id "attacks-per-weapon"
                     ]
@@ -297,7 +297,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "4"
                     , A.id "strength"
                     ]
@@ -314,7 +314,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "-2"
                     , A.id "armor-penetration"
                     ]
@@ -331,7 +331,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "D3"
                     , A.id "damage-dice"
                     ]
@@ -348,7 +348,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "4"
                     , A.id "toughness"
                     ]
@@ -365,7 +365,7 @@ view model =
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
-                    , A.class "w2"
+                    , A.class "w3"
                     , A.placeholder "5+"
                     , A.id "save"
                     ]

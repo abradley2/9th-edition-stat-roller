@@ -31,6 +31,7 @@ type alias Model =
     , resultDropdownMenu : DropdownMenu.Model
     , resultModifier : Maybe ( ResultType, String )
     , passValue : Maybe Int
+    , newPassValue : Maybe Int
     }
 
 
@@ -45,6 +46,7 @@ type Msg
     | CompareMenuMsg (DropdownMenu.Msg Compare)
     | ResultMenuMsg (DropdownMenu.Msg ResultType)
     | PassValueChanged String
+    | NewPassValueChanged String
 
 
 type ConfigType
@@ -60,6 +62,7 @@ init configType =
     , resultDropdownMenu = DropdownMenu.init
     , resultModifier = Nothing
     , passValue = Nothing
+    , newPassValue = Nothing
     }
 
 
@@ -128,10 +131,10 @@ view model config =
         [ A.class <| "flex flex-wrap"
         ]
         [ H.div
-            [ A.class "flex ml3 mt3" ]
+            [ A.class "flex items-start ml3 mt3" ]
             [ DropdownMenu.view model.compareDropdownMenu
                 { selectedLabel = Maybe.map Tuple.second model.compareCondition
-                , placeholder = "Compare condition"
+                , label = "Compare condition"
                 , id = config.id ++ "--compare-condition-dropdown"
                 , items =
                     [ ( Eq, "Equal to" )
@@ -141,23 +144,31 @@ view model config =
                 }
                 |> H.map CompareMenuMsg
             , TextInput.view
-                [ A.class <| "w2"
+                [ A.class <| "w3"
                 ]
                 PassValueChanged
             ]
         , H.div
-            [ A.class "flex ml3 mt3"
+            [ A.class "flex items-start ml3 mt3"
             ]
             [ DropdownMenu.view model.resultDropdownMenu
                 { selectedLabel = Maybe.map Tuple.second model.resultModifier
-                , placeholder = "Result modifier"
+                , label = "Result modifier"
                 , id = config.id ++ "--result-modifier-dropdown"
                 , items =
-                    [ ( Reroll, "Re-roll die" )
-                    , ( RerollNew, "Re-roll with new die" )
+                    [ ( Reroll, "Re-roll dice" )
+                    , ( RerollNew, "Re-roll new dice" )
                     , ( InfluenceNext, "Apply modifier to next roll" )
                     ]
                 }
                 |> H.map ResultMenuMsg
+            , case model.resultModifier of
+                Just (RerollNew, _) ->
+                    TextInput.view
+                        [ A.class "w3" ]
+                        NewPassValueChanged
+
+                _ ->
+                    H.text ""
             ]
         ]

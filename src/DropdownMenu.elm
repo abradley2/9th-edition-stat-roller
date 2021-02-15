@@ -1,12 +1,13 @@
 module DropdownMenu exposing (..)
 
-import Accessibility.Role exposing (menu, menuItem, listBox, listItem)
+import Accessibility.Role exposing (listBox, listItem, menu, menuItem)
 import Accessibility.Widget exposing (hasMenuPopUp)
 import Browser.Dom exposing (Error, focus)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Json.Decode as D
+import Maybe.Extra exposing (isJust, isNothing)
 import Task
 
 
@@ -44,7 +45,7 @@ type alias Model =
 
 type alias Config a =
     { selectedLabel : Maybe String
-    , placeholder : String
+    , label : String
     , items : List ( a, String )
     , id : String
     }
@@ -55,10 +56,12 @@ view model config =
     H.div
         []
         [ H.button
-            [ A.class <|
-                "black-80 b--light-blue bg-black helvetica button-reset flex "
-                    ++ " pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5 "
-                    ++ (config.selectedLabel |> Maybe.map (always "light-blue") |> Maybe.withDefault "white-50")
+            [ A.classList
+                [ ( "black-80 b--light-blue bg-black helvetica button-reset flex justify-between", True )
+                , ( "pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5 h2 f6", True )
+                , ( "light-blue", isJust config.selectedLabel )
+                , ( "white-50 w4", isNothing config.selectedLabel )
+                ]
             , hasMenuPopUp
             , E.onClick (ToggleMenuOpen (not model))
             , A.id config.id
@@ -66,7 +69,7 @@ view model config =
             [ H.span
                 []
                 [ H.text <|
-                    Maybe.withDefault config.placeholder config.selectedLabel
+                    Maybe.withDefault "" config.selectedLabel
                 ]
             , H.i
                 [ A.class "fas fa-caret-down pl2" ]
@@ -78,8 +81,8 @@ view model config =
             [ if model then
                 H.node "focus-menu"
                     [ A.class <|
-                        "flex flex-column absolute mt1 left-0 right-0 " ++
-                        "absolute bg-black ph2 pv1 br3 ba b--light-blue"
+                        "flex flex-column absolute mt1 left-0 right-0 "
+                            ++ "absolute bg-black ph2 pv1 br3 ba b--light-blue"
                     , A.tabindex 0
                     , menu
                     , listBox
@@ -92,6 +95,11 @@ view model config =
 
               else
                 H.text ""
+            , H.label
+                [ A.for config.id
+                , A.class "f7 white-80 db pl2 pt2"
+                ]
+                [ H.text config.label ]
             ]
         ]
 
@@ -102,7 +110,7 @@ buttonView config ( value, label ) =
         [ menuItem
         , listItem
         , A.class <|
-            "bg-white-10 light-blue ba pv2 br2 normal f7 b--light-blue mv1 helvetica "
+            "bg-white-10 light-blue ba pv2 ph1 br2 normal f7 b--light-blue mv1 helvetica "
                 ++ "pointer hover-bg-white-20"
         , E.onClick <| ItemSelected ( value, label ) config.id
         ]
