@@ -25,14 +25,19 @@ fromEffect eff =
                 |> Cmd.batch
 
 
-type alias Model =
+type alias Model_ =
     { compareDropdownMenu : DropdownMenu.Model
     , compareCondition : Maybe ( Compare, String )
     , resultDropdownMenu : DropdownMenu.Model
     , resultModifier : Maybe ( ResultType, String )
     , passValue : Maybe Int
     , newPassValue : Maybe Int
+    , nextModifierForm : Maybe Model
     }
+
+
+type Model
+    = Model Model_
 
 
 type ResultType
@@ -47,6 +52,7 @@ type Msg
     | ResultMenuMsg (DropdownMenu.Msg ResultType)
     | PassValueChanged String
     | NewPassValueChanged String
+    | NextModifierMsg Msg
 
 
 type ConfigType
@@ -55,20 +61,43 @@ type ConfigType
     | SaveMod
 
 
-init : ConfigType -> Model
-init configType =
+init_ : ConfigType -> Model_
+init_ configType =
     { compareDropdownMenu = DropdownMenu.init
     , compareCondition = Nothing
     , resultDropdownMenu = DropdownMenu.init
     , resultModifier = Nothing
     , passValue = Nothing
     , newPassValue = Nothing
+    , nextModifierForm = Nothing
     }
 
 
-update_ : Msg -> Model -> ( Model, Effect )
+init : ConfigType -> Model
+init configType =
+    Model (init_ configType)
+
+
+update_ : Msg -> Model_ -> ( Model_, Effect )
 update_ msg model =
     case msg of
+        NextModifierMsg nextModifierMsg ->
+            case model.nextModifierForm of
+                Just (Model model_) ->
+                    let
+                        ( nextModifierForm, nextModifierCmd ) =
+                            update_ nextModifierMsg model_
+                                |> Tuple.mapSecond (fromEffect >> Cmd.map NextModifierMsg >> EffCmd)
+                    in
+                    ( { model
+                        | nextModifierForm = Just (Model nextModifierForm)
+                      }
+                    , nextModifierCmd
+                    )
+
+                _ ->
+                    ( model, EffCmd Cmd.none )
+
         CompareMenuMsg dropdownMenuMsg ->
             let
                 ( compareDropdownMenu, dropdownMenuCmd ) =
@@ -107,6 +136,16 @@ update_ msg model =
 
                         _ ->
                             model.resultModifier
+                , nextModifierForm =
+                    case dropdownMenuMsg of
+                        DropdownMenu.ItemSelected ( InfluenceNext, _ ) _ ->
+                            Just <| Model (init_ AttackMod)
+
+                        DropdownMenu.ItemSelected _ _ ->
+                            Nothing
+
+                        _ ->
+                            model.nextModifierForm
               }
             , EffCmd dropdownMenuCmd
             )
@@ -117,7 +156,11 @@ update_ msg model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    update_ msg model |> Tuple.mapSecond fromEffect
+    case model of
+        Model model_ ->
+            update_ msg model_
+                |> Tuple.mapSecond fromEffect
+                |> Tuple.mapFirst Model
 
 
 type alias Config =
@@ -127,6 +170,13 @@ type alias Config =
 
 view : Model -> Config -> H.Html Msg
 view model config =
+    case model of
+        Model model_ ->
+            view_ model_ config
+
+
+view_ : Model_ -> Config -> H.Html Msg
+view_ model config =
     H.div
         [ A.class <| "flex flex-wrap"
         ]
@@ -163,7 +213,7 @@ view model config =
                 }
                 |> H.map ResultMenuMsg
             , case model.resultModifier of
-                Just (RerollNew, _) ->
+                Just ( RerollNew, _ ) ->
                     TextInput.view
                         [ A.class "w3" ]
                         NewPassValueChanged
@@ -171,4 +221,11 @@ view model config =
                 _ ->
                     H.text ""
             ]
+        , case model.nextModifierForm of
+            Just (Model model_) ->
+                H.div [] [ view_ model_ { config | id = "next-mod--" ++ config.id } ]
+                    |> H.map NextModifierMsg
+
+            Nothing ->
+                H.text ""
         ]

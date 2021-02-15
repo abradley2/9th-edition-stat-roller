@@ -83,6 +83,7 @@ view model config =
                     [ A.class <|
                         "flex flex-column absolute mt1 left-0 right-0 "
                             ++ "absolute bg-black ph2 pv1 br3 ba b--light-blue"
+                            ++ " z-100 "
                     , A.tabindex 0
                     , menu
                     , listBox
