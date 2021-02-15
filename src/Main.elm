@@ -125,7 +125,7 @@ update msg model =
 cardView : String -> H.Html Msg -> H.Html Msg
 cardView optionId body =
     H.div
-        [ A.class "pa2 w-50 w-33-m w-25-l relative" ]
+        [ A.class "pa2 w-50 w-33-ns w-33-m w-20-l relative" ]
         [ H.div
             [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
             ]
@@ -238,7 +238,7 @@ layout model =
 view : Model -> H.Html Msg
 view model =
     H.div
-        [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row w-80-m center-m"
+        [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
         ]
         [ cardView "weapon-skill" <|
             H.div
