@@ -170,7 +170,7 @@ modalView model =
         ]
         [ H.node "focus-trap"
             [ A.classList
-                [ ( "relative w5 w-40-l h4 center bg-black-70 br3 ba b--light-blue shadow-1", True )
+                [ ( "relative w-90 w-70-m w-50-l h4 center bg-black-70 br3 ba b--light-blue shadow-1", True )
                 , ( "pa2 db", True )
                 , ( "mt0", isOpen == False )
                 , ( "mt6", isOpen == True )

@@ -56,7 +56,7 @@ view model config =
         []
         [ H.button
             [ A.class <|
-                "black-80 b--light-blue bg-black helvetica button-reset "
+                "black-80 b--light-blue bg-black helvetica button-reset flex "
                     ++ " pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5 "
                     ++ (config.selectedLabel |> Maybe.map (always "light-blue") |> Maybe.withDefault "white-50")
             , hasMenuPopUp

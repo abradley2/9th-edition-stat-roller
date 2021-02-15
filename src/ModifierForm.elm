@@ -26,15 +26,24 @@ fromEffect eff =
 
 
 type alias Model =
-    { dropdownMenu : DropdownMenu.Model
+    { compareDropdownMenu : DropdownMenu.Model
     , compareCondition : Maybe ( Compare, String )
+    , resultDropdownMenu : DropdownMenu.Model
+    , resultModifier : Maybe ( ResultType, String )
     , passValue : Maybe Int
     }
 
 
+type ResultType
+    = Reroll
+    | RerollNew
+    | InfluenceNext
+
+
 type Msg
     = NoOp
-    | DropdownMenuMsg (DropdownMenu.Msg Compare)
+    | CompareMenuMsg (DropdownMenu.Msg Compare)
+    | ResultMenuMsg (DropdownMenu.Msg ResultType)
     | PassValueChanged String
 
 
@@ -46,8 +55,10 @@ type ConfigType
 
 init : ConfigType -> Model
 init configType =
-    { dropdownMenu = DropdownMenu.init
+    { compareDropdownMenu = DropdownMenu.init
     , compareCondition = Nothing
+    , resultDropdownMenu = DropdownMenu.init
+    , resultModifier = Nothing
     , passValue = Nothing
     }
 
@@ -55,16 +66,44 @@ init configType =
 update_ : Msg -> Model -> ( Model, Effect )
 update_ msg model =
     case msg of
-        DropdownMenuMsg dropdownMenuMsg ->
+        CompareMenuMsg dropdownMenuMsg ->
             let
-                ( dropdownMenu, dropdownMenuCmd ) =
+                ( compareDropdownMenu, dropdownMenuCmd ) =
                     DropdownMenu.update
                         dropdownMenuMsg
-                        model.dropdownMenu
-                        |> Tuple.mapSecond (Cmd.map DropdownMenuMsg)
+                        model.compareDropdownMenu
+                        |> Tuple.mapSecond (Cmd.map CompareMenuMsg)
             in
             ( { model
-                | dropdownMenu = dropdownMenu
+                | compareDropdownMenu = compareDropdownMenu
+                , compareCondition =
+                    case dropdownMenuMsg of
+                        DropdownMenu.ItemSelected compareCondition _ ->
+                            Just compareCondition
+
+                        _ ->
+                            model.compareCondition
+              }
+            , EffCmd dropdownMenuCmd
+            )
+
+        ResultMenuMsg dropdownMenuMsg ->
+            let
+                ( resultDropdownMenu, dropdownMenuCmd ) =
+                    DropdownMenu.update
+                        dropdownMenuMsg
+                        model.resultDropdownMenu
+                        |> Tuple.mapSecond (Cmd.map ResultMenuMsg)
+            in
+            ( { model
+                | resultDropdownMenu = resultDropdownMenu
+                , resultModifier =
+                    case dropdownMenuMsg of
+                        DropdownMenu.ItemSelected resultModifier _ ->
+                            Just resultModifier
+
+                        _ ->
+                            model.resultModifier
               }
             , EffCmd dropdownMenuCmd
             )
@@ -89,9 +128,9 @@ view model config =
         [ A.class <| "flex flex-wrap"
         ]
         [ H.div
-            [ A.class "flex" ]
-            [ DropdownMenu.view model.dropdownMenu
-                { selectedLabel = Nothing
+            [ A.class "flex ml3 mt3" ]
+            [ DropdownMenu.view model.compareDropdownMenu
+                { selectedLabel = Maybe.map Tuple.second model.compareCondition
                 , placeholder = "Compare condition"
                 , id = config.id ++ "--compare-condition-dropdown"
                 , items =
@@ -100,25 +139,25 @@ view model config =
                     , ( Gte, "Greater than or equal to" )
                     ]
                 }
-                |> H.map DropdownMenuMsg
+                |> H.map CompareMenuMsg
             , TextInput.view
                 [ A.class <| "w2"
                 ]
                 PassValueChanged
             ]
         , H.div
-            [ A.class "ml3"
+            [ A.class "flex ml3 mt3"
             ]
-            [ DropdownMenu.view model.dropdownMenu
-                { selectedLabel = Nothing
+            [ DropdownMenu.view model.resultDropdownMenu
+                { selectedLabel = Maybe.map Tuple.second model.resultModifier
                 , placeholder = "Result modifier"
                 , id = config.id ++ "--result-modifier-dropdown"
                 , items =
-                    [ ( Eq, "Equal to" )
-                    , ( Lte, "Less than or equal to" )
-                    , ( Gte, "Greater than or equal to" )
+                    [ ( Reroll, "Re-roll die" )
+                    , ( RerollNew, "Re-roll with new die" )
+                    , ( InfluenceNext, "Apply modifier to next roll" )
                     ]
                 }
-                |> H.map DropdownMenuMsg
+                |> H.map ResultMenuMsg
             ]
         ]

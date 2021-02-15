@@ -3,6 +3,10 @@ export default class FocusMenu extends HTMLElement {
     return ['show']
   }
 
+  disconnectedCallback () {
+    if (this.onDisconnect) this.onDisconnect()
+  }
+
   attributeChangedCallback (name, oldVal, newVal) {
     const node = this
     const children = this.children
@@ -51,18 +55,13 @@ export default class FocusMenu extends HTMLElement {
         node.onDisconnect = function () {
           document.removeEventListener('keydown', handleKeyPress)
           node.removeEventListener('focusout', handleFocusOut)
+          node.onDisconnect = undefined
         }
 
         setTimeout(() => {
-          if (node.firstChild) {
-            node.firstChild.focus()
-          }
-        }, 1)
+          if (node.firstChild) node.firstChild.focus()
+        })
       }
     }
-  }
-
-  disconnectedCallback () {
-    if (this.onDisconnect) this.onDisconnect()
   }
 }
