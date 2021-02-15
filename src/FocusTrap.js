@@ -25,7 +25,7 @@ export default class FocusTrap extends HTMLElement {
             // allow for other programatic focus changes to occur
             setTimeout(() => {
               if (!node.contains(document.activeElement)) node.focus()
-            }, 100)
+            }, 10)
           }
         }
 

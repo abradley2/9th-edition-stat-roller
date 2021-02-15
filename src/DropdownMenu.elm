@@ -1,6 +1,6 @@
 module DropdownMenu exposing (..)
 
-import Accessibility.Role exposing (menu, menuItem)
+import Accessibility.Role exposing (menu, menuItem, listBox, listItem)
 import Accessibility.Widget exposing (hasMenuPopUp)
 import Browser.Dom exposing (Error, focus)
 import Html as H
@@ -77,14 +77,17 @@ view model config =
             ]
             [ if model then
                 H.node "focus-menu"
-                    [ A.class "flex flex-column absolute mt1 left-0 right-0 abosolute bg-black ph2 pv1 br3 ba b--light-blue"
+                    [ A.class <|
+                        "flex flex-column absolute mt1 left-0 right-0 " ++
+                        "absolute bg-black ph2 pv1 br3 ba b--light-blue"
                     , A.tabindex 0
                     , menu
+                    , listBox
                     , E.on "requestedclose" (D.succeed <| ToggleMenuOpen False)
                     , A.attribute "show" "true"
                     ]
                     (config.items
-                        |> List.map (buttonView config.id)
+                        |> List.map (buttonView config)
                     )
 
               else
@@ -93,13 +96,14 @@ view model config =
         ]
 
 
-buttonView : String -> ( a, String ) -> H.Html (Msg a)
-buttonView menuId ( value, label ) =
+buttonView : Config a -> ( a, String ) -> H.Html (Msg a)
+buttonView config ( value, label ) =
     H.button
         [ menuItem
+        , listItem
         , A.class <|
             "bg-white-10 light-blue ba pv2 br2 normal f7 b--light-blue mv1 helvetica "
                 ++ "pointer hover-bg-white-20"
-        , E.onClick <| ItemSelected ( value, label ) menuId
+        , E.onClick <| ItemSelected ( value, label ) config.id
         ]
         [ H.text label ]

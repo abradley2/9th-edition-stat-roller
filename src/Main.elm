@@ -11,6 +11,7 @@ import Html.Events as E
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import ModifierForm
+import TextInput
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Task
@@ -170,7 +171,7 @@ modalView model =
         [ H.node "focus-trap"
             [ A.classList
                 [ ( "relative w5 w-40-l h4 center bg-black-70 br3 ba b--light-blue shadow-1", True )
-                , ( "pa2 flex flex-column justify-start items-center", True )
+                , ( "pa2 db", True )
                 , ( "mt0", isOpen == False )
                 , ( "mt6", isOpen == True )
                 ]
@@ -203,7 +204,11 @@ modalView model =
               else
                 H.text ""
             ]
-        , if isOpen then H.button [ A.class "o-0" ] [] else H.text ""
+        , if isOpen then
+            H.button [ A.class "o-0" ] []
+
+          else
+            H.text ""
         ]
 
 
@@ -238,7 +243,7 @@ view model =
         [ cardView "weapon-skill" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "3+"
@@ -256,7 +261,7 @@ view model =
         , cardView "attacks-per-unit" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "2"
@@ -273,7 +278,7 @@ view model =
         , cardView "attacks-per-weapon" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "2"
@@ -290,7 +295,7 @@ view model =
         , cardView "strength" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "4"
@@ -307,7 +312,7 @@ view model =
         , cardView "armor-penetration" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "-2"
@@ -324,7 +329,7 @@ view model =
         , cardView "damage-dice" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "D3"
@@ -341,7 +346,7 @@ view model =
         , cardView "toughness" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "4"
@@ -358,7 +363,7 @@ view model =
         , cardView "save" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ textInputView
+                [ TextInput.view
                     [ required True
                     , A.class "w2"
                     , A.placeholder "5+"
@@ -383,21 +388,6 @@ main =
         , subscriptions = \_ -> Sub.none
         , view = layout
         }
-
-
-textInputView : List (H.Attribute Msg) -> (String -> Msg) -> H.Html Msg
-textInputView attrs onInput =
-    H.input
-        ([ E.onInput onInput
-         , A.spellcheck False
-         , A.autocomplete False
-         , A.class <|
-            "input-reset ba bg-black-40 light-blue hover-bn"
-                ++ " br-0 bt-0 outline-0 ph2 pv2 hover-bg-black-10 tc b--light-blue"
-         ]
-            ++ attrs
-        )
-        []
 
 
 type alias Die =

@@ -5,6 +5,7 @@ import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Run exposing (Compare(..))
+import TextInput
 
 
 type Effect
@@ -26,12 +27,15 @@ fromEffect eff =
 
 type alias Model =
     { dropdownMenu : DropdownMenu.Model
+    , compareCondition : Maybe ( Compare, String )
+    , passValue : Maybe Int
     }
 
 
 type Msg
     = NoOp
     | DropdownMenuMsg (DropdownMenu.Msg Compare)
+    | PassValueChanged String
 
 
 type ConfigType
@@ -43,6 +47,8 @@ type ConfigType
 init : ConfigType -> Model
 init configType =
     { dropdownMenu = DropdownMenu.init
+    , compareCondition = Nothing
+    , passValue = Nothing
     }
 
 
@@ -80,16 +86,39 @@ type alias Config =
 view : Model -> Config -> H.Html Msg
 view model config =
     H.div
-        []
-        [ DropdownMenu.view model.dropdownMenu
-            { selectedLabel = Nothing
-            , placeholder = "Compare condition"
-            , id = config.id ++ "--compare-condition-dropdown"
-            , items =
-                [ ( Eq, "Equal to" )
-                , ( Lte, "Less than or equal to" )
-                , ( Gte, "Greater than or equal to" )
+        [ A.class <| "flex flex-wrap"
+        ]
+        [ H.div
+            [ A.class "flex" ]
+            [ DropdownMenu.view model.dropdownMenu
+                { selectedLabel = Nothing
+                , placeholder = "Compare condition"
+                , id = config.id ++ "--compare-condition-dropdown"
+                , items =
+                    [ ( Eq, "Equal to" )
+                    , ( Lte, "Less than or equal to" )
+                    , ( Gte, "Greater than or equal to" )
+                    ]
+                }
+                |> H.map DropdownMenuMsg
+            , TextInput.view
+                [ A.class <| "w2"
                 ]
-            }
-            |> H.map DropdownMenuMsg
+                PassValueChanged
+            ]
+        , H.div
+            [ A.class "ml3"
+            ]
+            [ DropdownMenu.view model.dropdownMenu
+                { selectedLabel = Nothing
+                , placeholder = "Result modifier"
+                , id = config.id ++ "--result-modifier-dropdown"
+                , items =
+                    [ ( Eq, "Equal to" )
+                    , ( Lte, "Less than or equal to" )
+                    , ( Gte, "Greater than or equal to" )
+                    ]
+                }
+                |> H.map DropdownMenuMsg
+            ]
         ]
