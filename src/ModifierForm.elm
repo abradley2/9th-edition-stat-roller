@@ -40,10 +40,13 @@ type Model
     = Model Model_
 
 
+type ValueMod = Add | Subtract
+
 type ResultType
     = Reroll
     | RerollNew
     | InfluenceNext
+    | ValueMod ValueMod
 
 
 type Msg
@@ -172,11 +175,11 @@ view : Model -> Config -> H.Html Msg
 view model config =
     case model of
         Model model_ ->
-            view_ model_ config
+            view_ model_ config False
 
 
-view_ : Model_ -> Config -> H.Html Msg
-view_ model config =
+view_ : Model_ -> Config -> Bool -> H.Html Msg
+view_ model config nested =
     H.div
         [ A.class <| "flex flex-wrap"
         ]
@@ -208,8 +211,15 @@ view_ model config =
                 , items =
                     [ ( Reroll, "Re-roll dice" )
                     , ( RerollNew, "Re-roll new dice" )
-                    , ( InfluenceNext, "Apply modifier to next roll" )
+                    , ( ValueMod Add, "Modify roll: add" )
+                    , ( ValueMod Subtract, "Modfiy roll: subtract" )
                     ]
+                        ++ (if nested then
+                                []
+
+                            else
+                                [ ( InfluenceNext, "Apply modifier to next roll" ) ]
+                           )
                 }
                 |> H.map ResultMenuMsg
             , case model.resultModifier of
@@ -223,7 +233,7 @@ view_ model config =
             ]
         , case model.nextModifierForm of
             Just (Model model_) ->
-                H.div [] [ view_ model_ { config | id = "next-mod--" ++ config.id } ]
+                H.div [] [ view_ model_ { config | id = "next-mod--" ++ config.id } True ]
                     |> H.map NextModifierMsg
 
             Nothing ->

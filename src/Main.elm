@@ -11,10 +11,10 @@ import Html.Events as E
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import ModifierForm
-import TextInput
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Task
+import TextInput
 
 
 type Effect
