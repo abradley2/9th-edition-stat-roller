@@ -19,7 +19,6 @@ import TextInput
 
 type Effect
     = EffCmd (Cmd Msg)
-    | EffFocusElement String
     | EffBatch (List Effect)
 
 
@@ -28,9 +27,6 @@ fromEffect eff =
     case eff of
         EffCmd cmd ->
             cmd
-
-        EffFocusElement elementId ->
-            Task.attempt ElementFocused (Dom.focus elementId)
 
         EffBatch cmds ->
             List.map fromEffect cmds |> Cmd.batch
@@ -53,7 +49,7 @@ type alias Flags =
 type alias Model =
     { initialized : Bool
     , flags : Flags
-    , modalOpen : ( String, Bool )
+    , modalOpen : Bool
     , modifierForm : ModifierForm.Model
     }
 
@@ -71,7 +67,7 @@ init flagsJson =
                 flagsJson
     in
     ( { initialized = ResultX.isOk flagsResult
-      , modalOpen = ( "", False )
+      , modalOpen = False
       , modifierForm = ModifierForm.init ModifierForm.AttackMod
       , flags =
             Result.withDefault
@@ -106,16 +102,16 @@ update msg model =
 
         CloseModalButtonClicked ->
             ( { model
-                | modalOpen = ( "", False )
+                | modalOpen = False
               }
-            , EffFocusElement <| Tuple.first model.modalOpen
+            , EffCmd Cmd.none
             )
 
         OptionsButtonClicked optionId ->
             ( { model
-                | modalOpen = ( optionId, True )
+                | modalOpen = True
               }
-            , EffFocusElement "modal-view"
+            , EffCmd Cmd.none
             )
 
         NoOp ->
@@ -157,7 +153,7 @@ modalView : Model -> H.Html Msg
 modalView model =
     let
         isOpen =
-            Tuple.second model.modalOpen
+            model.modalOpen
     in
     H.div
         [ A.classList

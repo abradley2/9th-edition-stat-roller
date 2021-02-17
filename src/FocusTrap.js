@@ -9,6 +9,7 @@ export default class FocusTrap extends HTMLElement {
 
   attributeChangedCallback (name, oldVal, newVal) {
     const node = this
+    let borrowed
 
     if (name === 'active') {
       const active = newVal === 'true'
@@ -18,6 +19,9 @@ export default class FocusTrap extends HTMLElement {
       }
 
       if (active) {
+        borrowed = document.activeElement
+        node.tabIndex = 0
+        setTimeout(() => node.focus(), 1)
         function handleFocusOut (e) {
           if (!node.contains(e.relatedTarget)) {
             e.preventDefault()
@@ -33,6 +37,10 @@ export default class FocusTrap extends HTMLElement {
 
         node.onDisconnect = function () {
           node.removeEventListener('focusout', handleFocusOut)
+          node.tabIndex = -1
+          if (borrowed) {
+            setTimeout(() => borrowed.focus(), 1)
+          }
         }
       }
     }
