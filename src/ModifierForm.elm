@@ -1,10 +1,11 @@
 module ModifierForm exposing (..)
 
+import Accessibility.Widget exposing (disabled, required)
 import DropdownMenu
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
-import Run exposing (Compare(..))
+import Run exposing (Compare(..), Modifier(..))
 import TextInput
 
 
@@ -28,19 +29,83 @@ fromEffect eff =
 type alias Model_ =
     { compareDropdownMenu : DropdownMenu.Model
     , compareCondition : Maybe ( Compare, String )
+    , passValue : Maybe Int
     , resultDropdownMenu : DropdownMenu.Model
     , resultModifier : Maybe ( ResultType, String )
-    , passValue : Maybe Int
     , newPassValue : Maybe Int
     , nextModifierForm : Maybe Model
+    , valueMod : Maybe Int
     }
+
+
+modelToModfier : Model_ -> Maybe Modifier
+modelToModfier model =
+    let
+        compare =
+            model.compareCondition
+                |> Maybe.map Tuple.first
+                |> Maybe.andThen
+                    (\cmp ->
+                        case cmp of
+                            Always ->
+                                Just <| Compare Run.Always 1
+
+                            _ ->
+                                Maybe.map
+                                    (Compare cmp)
+                                    model.passValue
+                    )
+                |> Debug.log "COMPARE"
+
+        result =
+            model.resultModifier
+                |> Maybe.map Tuple.first
+                |> Maybe.andThen
+                    (\resMod ->
+                        case resMod of
+                            Reroll ->
+                                Just Run.Reroll
+
+                            RerollNew ->
+                                Just Run.Reroll
+
+                            ValueMod Add ->
+                                Maybe.map Run.AddValue model.valueMod
+
+                            ValueMod Subtract ->
+                                Maybe.map Run.SubtractValue model.valueMod
+
+                            InfluenceNext ->
+                                Maybe.andThen modelToModfier
+                                    (case model.nextModifierForm of
+                                        Just (Model model_) ->
+                                            Just model_
+
+                                        Nothing ->
+                                            Nothing
+                                    )
+                    )
+                |> Debug.log "RESULT"
+    in
+    Maybe.map2
+        (\f x -> f x)
+        compare
+        result
+
+
+generateModifier : Model_ -> Maybe Modifier
+generateModifier model =
+    Nothing
 
 
 type Model
     = Model Model_
 
 
-type ValueMod = Add | Subtract
+type ValueMod
+    = Add
+    | Subtract
+
 
 type ResultType
     = Reroll
@@ -55,6 +120,7 @@ type Msg
     | ResultMenuMsg (DropdownMenu.Msg ResultType)
     | PassValueChanged String
     | NewPassValueChanged String
+    | ValueModChanged String
     | NextModifierMsg Msg
 
 
@@ -72,6 +138,7 @@ init_ configType =
     , resultModifier = Nothing
     , passValue = Nothing
     , newPassValue = Nothing
+    , valueMod = Nothing
     , nextModifierForm = Nothing
     }
 
@@ -190,16 +257,22 @@ view_ model config nested =
                 , label = "Compare condition"
                 , id = config.id ++ "--compare-condition-dropdown"
                 , items =
-                    [ ( Eq, "Equal to" )
+                    [ ( Always, "Always" )
+                    , ( Eq, "Equal to" )
                     , ( Lte, "Less than or equal to" )
                     , ( Gte, "Greater than or equal to" )
                     ]
                 }
                 |> H.map CompareMenuMsg
-            , TextInput.view
-                [ A.class <| "w3"
-                ]
-                PassValueChanged
+            , case model.compareCondition of
+                Just ( Always, _ ) ->
+                    H.text ""
+
+                _ ->
+                    TextInput.view
+                        [ A.class <| "w3"
+                        ]
+                        PassValueChanged
             ]
         , H.div
             [ A.class "flex items-start ml3 mt3"
@@ -223,6 +296,11 @@ view_ model config nested =
                 }
                 |> H.map ResultMenuMsg
             , case model.resultModifier of
+                Just ( ValueMod _, _ ) ->
+                    TextInput.view
+                        [ A.class "w3" ]
+                        ValueModChanged
+
                 Just ( RerollNew, _ ) ->
                     TextInput.view
                         [ A.class "w3" ]
@@ -238,4 +316,13 @@ view_ model config nested =
 
             Nothing ->
                 H.text ""
+        , H.div
+            [ A.class "white" ]
+            [ case modelToModfier model of
+                Just mod ->
+                    H.text "READY"
+
+                Nothing ->
+                    H.text "NOT READY"
+            ]
         ]

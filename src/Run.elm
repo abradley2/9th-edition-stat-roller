@@ -22,7 +22,8 @@ type Modifier
 
 
 type Compare
-    = Lte
+    = Always
+    | Lte
     | Gte
     | Eq
 
@@ -46,6 +47,9 @@ applyModifier die modifier ( currentVal, seed ) =
 
             else
                 ( seed, currentVal, Nothing )
+
+        Compare Always _ nextMod ->
+            applyModifier die nextMod ( currentVal, seed )
 
         Compare Gte val nextMod ->
             if currentVal >= val then

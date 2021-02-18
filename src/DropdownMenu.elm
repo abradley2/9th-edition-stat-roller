@@ -59,7 +59,7 @@ view model config =
             [ A.classList
                 [ ( "black-80 b--light-blue bg-black helvetica button-reset flex justify-between", True )
                 , ( "pointer outline-0 pa2 shadow-1 br-0 bt-0 bl bb fw1 f5 h2 f6", True )
-                , ( "light-blue", isJust config.selectedLabel )
+                , ( "light-blue w-100", isJust config.selectedLabel )
                 , ( "white-50 w4", isNothing config.selectedLabel )
                 ]
             , hasMenuPopUp
