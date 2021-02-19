@@ -15,7 +15,7 @@ type Modifier
     | AddValue Int
     | SubtractValue Int
     | InfluenceNext Modifier
-    | Reroll
+    | Reroll (Maybe Int)
     | Compare Compare Int Modifier
     | MaybeMod (Maybe Modifier)
     | Batch (List Modifier)
@@ -71,10 +71,15 @@ applyModifier die modifier ( currentVal, seed ) =
         SubtractValue minusVal ->
             ( seed, currentVal - minusVal, Nothing )
 
-        Reroll ->
+        Reroll mNewVal ->
             let
+                nextDie =
+                    mNewVal
+                        |> Maybe.map (\passValue -> { die | passValue = passValue })
+                        |> Maybe.withDefault die
+
                 ( nextVal, nextSeed ) =
-                    rollDie seed die
+                    rollDie seed nextDie
             in
             ( nextSeed, nextVal, Nothing )
 

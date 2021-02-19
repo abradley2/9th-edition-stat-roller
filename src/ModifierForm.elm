@@ -64,10 +64,10 @@ modelToModfier model =
                     (\resMod ->
                         case resMod of
                             Reroll ->
-                                Just Run.Reroll
+                                Just (Run.Reroll Nothing)
 
                             RerollNew ->
-                                Just Run.Reroll
+                                Maybe.map (Just >> Run.Reroll) model.newPassValue
 
                             ValueMod Add ->
                                 Maybe.map Run.AddValue model.valueMod
