@@ -40,6 +40,44 @@ type alias Model_ =
     }
 
 
+modifierToModel : Modifier -> Model_
+modifierToModel modifier =
+    case modifier of
+        NoMod ->
+            init_ AttackMod
+
+        Compare compare passValue resultMod ->
+            let
+                foo =
+                    1
+
+                ( resultType, valueMod, newPassValue ) =
+                    case resultMod of
+                        Run.AddValue value ->
+                            ( ValueMod Add, Just value, Nothing )
+
+                        Run.SubtractValue value ->
+                            ( ValueMod Subtract, Just value, Nothing )
+
+                        Run.Reroll (Just value) ->
+                            ( RerollNew, Nothing, Just value )
+
+                        Run.Reroll Nothing ->
+                            ( Reroll, Nothing, Nothing )
+
+                        -- TODO
+                        Run.InfluenceNext nextResultMod ->
+                            ( ValueMod Add, Nothing, Nothing )
+
+                        _ ->
+                            ( ValueMod Add, Nothing, Nothing )
+            in
+            init_ AttackMod
+
+        _ ->
+            init_ AttackMod
+
+
 modelToModfier : Model_ -> Maybe Modifier
 modelToModfier model =
     let
@@ -266,7 +304,13 @@ view model config =
                     ]
                     [ case modelToModfier model_ of
                         Just mod ->
-                            H.text "READY"
+                            H.button
+                                [ A.class <|
+                                    "black-80 ba b--light-blue bg-light-blue f6 "
+                                        ++ " hover-bg-transparent hover-white grow "
+                                        ++ " pointer outline-0 br2 pa2 shadow-1 "
+                                ]
+                                [ H.text "Apply Modifier" ]
 
                         Nothing ->
                             H.text ""
@@ -278,7 +322,6 @@ withLabel : String -> String -> H.Html Msg -> H.Html Msg
 withLabel fieldId label field =
     H.div
         [ A.class "flex flex-column"
-
         ]
         [ field
         , H.label
@@ -292,7 +335,12 @@ withLabel fieldId label field =
 view_ : Model_ -> Config -> Bool -> H.Html Msg
 view_ model config nested =
     let
-        id = if nested then config.id ++ "--subsequent" else config.id
+        id =
+            if nested then
+                config.id ++ "--subsequent"
+
+            else
+                config.id
     in
     H.div
         [ A.class <| "flex flex-wrap"
@@ -365,7 +413,7 @@ view_ model config nested =
                         , A.id (id ++ "--new-pass-value")
                         ]
                         NewPassValueChanged
-                         |> withLabel (id ++ "--new-pass-value") "Pass value"
+                        |> withLabel (id ++ "--new-pass-value") "Pass value"
 
                 _ ->
                     H.text ""
