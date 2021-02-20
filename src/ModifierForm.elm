@@ -55,7 +55,6 @@ modelToModfier model =
                                     (Compare cmp)
                                     model.passValue
                     )
-                |> Debug.log "COMPARE"
 
         result =
             model.resultModifier
@@ -85,7 +84,6 @@ modelToModfier model =
                                             Nothing
                                     )
                     )
-                |> Debug.log "RESULT"
     in
     Maybe.map2
         (\f x -> f x)
@@ -151,6 +149,24 @@ init configType =
 update_ : Msg -> Model_ -> ( Model_, Effect )
 update_ msg model =
     case msg of
+        NoOp ->
+            ( model, EffCmd Cmd.none )
+
+        ValueModChanged valueMod ->
+            ( { model | valueMod = String.toInt valueMod }
+            , EffCmd Cmd.none
+            )
+
+        PassValueChanged passValue ->
+            ( { model | passValue = String.toInt passValue }
+            , EffCmd Cmd.none
+            )
+
+        NewPassValueChanged newPassValue ->
+            ( { model | newPassValue = String.toInt newPassValue }
+            , EffCmd Cmd.none
+            )
+
         NextModifierMsg nextModifierMsg ->
             case model.nextModifierForm of
                 Just (Model model_) ->
@@ -220,9 +236,6 @@ update_ msg model =
             , EffCmd dropdownMenuCmd
             )
 
-        _ ->
-            ( model, EffCmd Cmd.none )
-
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -271,6 +284,7 @@ view_ model config nested =
                 _ ->
                     TextInput.view
                         [ A.class <| "w3"
+                        , A.value (model.passValue |> Maybe.map String.fromInt |> Maybe.withDefault "")
                         ]
                         PassValueChanged
             ]
@@ -298,12 +312,16 @@ view_ model config nested =
             , case model.resultModifier of
                 Just ( ValueMod _, _ ) ->
                     TextInput.view
-                        [ A.class "w3" ]
+                        [ A.class "w3"
+                        , A.value (model.valueMod |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                        ]
                         ValueModChanged
 
                 Just ( RerollNew, _ ) ->
                     TextInput.view
-                        [ A.class "w3" ]
+                        [ A.class "w3"
+                        , A.value (model.newPassValue |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                        ]
                         NewPassValueChanged
 
                 _ ->
