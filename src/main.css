@@ -62,3 +62,8 @@ input:disabled {
 button.hover-white > .fa {
     color: white;
 }
+
+fieldset {
+   border-width: 0px;
+   padding: 0px;
+}
