@@ -146,8 +146,8 @@ update msg model =
                     , EffCmd Cmd.none
                     )
 
-        OpenModifierForm modType ->
-            case modType of
+        OpenModifierForm modifierCategory ->
+            case modifierCategory of
                 WeaponSkill ->
                     let
                         modifierForm =
@@ -157,6 +157,7 @@ update msg model =
                     in
                     ( { model
                         | modifierForm = modifierForm
+                        , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
                     , EffCmd Cmd.none
@@ -171,6 +172,7 @@ update msg model =
                     in
                     ( { model
                         | modifierForm = modifierForm
+                        , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
                     , EffCmd Cmd.none
@@ -185,6 +187,7 @@ update msg model =
                     in
                     ( { model
                         | modifierForm = modifierForm
+                        , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
                     , EffCmd Cmd.none

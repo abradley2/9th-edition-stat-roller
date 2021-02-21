@@ -40,61 +40,60 @@ type alias Model_ =
     }
 
 
-
 modifierToModel : Modifier -> Model
 modifierToModel modifier =
     Model <|
-    case modifier of
-        NoMod ->
-            init_
+        case modifier of
+            NoMod ->
+                init_
 
-        Compare compare passValue resultMod ->
-            let
-                nextModifierForm =
-                    case resultMod of
-                        Run.InfluenceNext nextMod ->
-                            nextMod
-                                |> modifierToModel
-                                |> Just
+            Compare compare passValue resultMod ->
+                let
+                    nextModifierForm =
+                        case resultMod of
+                            Run.InfluenceNext nextMod ->
+                                nextMod
+                                    |> modifierToModel
+                                    |> Just
 
-                        _ ->
-                            Nothing
+                            _ ->
+                                Nothing
 
-                ( resultType, valueMod, newPassValue ) =
-                    case resultMod of
-                        Run.AddValue value ->
-                            ( ValueMod Add, Just value, Nothing )
+                    ( resultType, valueMod, newPassValue ) =
+                        case resultMod of
+                            Run.AddValue value ->
+                                ( ValueMod Add, Just value, Nothing )
 
-                        Run.SubtractValue value ->
-                            ( ValueMod Subtract, Just value, Nothing )
+                            Run.SubtractValue value ->
+                                ( ValueMod Subtract, Just value, Nothing )
 
-                        Run.Reroll (Just value) ->
-                            ( RerollNew, Nothing, Just value )
+                            Run.Reroll (Just value) ->
+                                ( RerollNew, Nothing, Just value )
 
-                        Run.Reroll Nothing ->
-                            ( Reroll, Nothing, Nothing )
+                            Run.Reroll Nothing ->
+                                ( Reroll, Nothing, Nothing )
 
-                        _ ->
-                            ( ValueMod Add, Nothing, Nothing )
+                            _ ->
+                                ( InfluenceNext, Nothing, Nothing )
 
-                baseModel =
-                    init_
-            in
-            { baseModel
-                | passValue = Just passValue
-                , valueMod = valueMod
-                , newPassValue = newPassValue
-                , compareCondition = Just (compare, "")
-                , nextModifierForm = nextModifierForm
-                , resultModifier =
-                    Just
-                        ( resultType
-                        , resultTypeLabel resultType
-                        )
-            }
+                    baseModel =
+                        init_
+                in
+                { baseModel
+                    | passValue = Just passValue
+                    , valueMod = valueMod
+                    , newPassValue = newPassValue
+                    , compareCondition = Just ( compare, compareLabel compare )
+                    , nextModifierForm = nextModifierForm
+                    , resultModifier =
+                        Just
+                            ( resultType
+                            , resultTypeLabel resultType
+                            )
+                }
 
-        _ ->
-            init_
+            _ ->
+                init_
 
 
 modelToModifier : Model_ -> Maybe Modifier
@@ -142,6 +141,7 @@ modelToModifier model =
                                         Nothing ->
                                             Nothing
                                     )
+                                    |> Maybe.map Run.InfluenceNext
                     )
     in
     Maybe.map2
@@ -444,6 +444,22 @@ view_ model config nested =
             Nothing ->
                 H.text ""
         ]
+
+
+compareLabel : Compare -> String
+compareLabel compare =
+    case compare of
+        Always ->
+            "Always"
+
+        Eq ->
+            "Equal to"
+
+        Lte ->
+            "Less than or equal to"
+
+        Gte ->
+            "Greater than or equal to"
 
 
 resultTypeLabel : ResultType -> String
