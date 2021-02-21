@@ -44,12 +44,20 @@ modifierToModel : Modifier -> Model_
 modifierToModel modifier =
     case modifier of
         NoMod ->
-            init_ AttackMod
+            init_
 
         Compare compare passValue resultMod ->
             let
-                foo =
-                    1
+                nextModifierForm =
+                    case resultMod of
+                        Run.InfluenceNext nextMod ->
+                            nextMod
+                                |> modifierToModel
+                                |> Model
+                                |> Just
+
+                        _ ->
+                            Nothing
 
                 ( resultType, valueMod, newPassValue ) =
                     case resultMod of
@@ -65,21 +73,27 @@ modifierToModel modifier =
                         Run.Reroll Nothing ->
                             ( Reroll, Nothing, Nothing )
 
-                        -- TODO
-                        Run.InfluenceNext nextResultMod ->
-                            ( ValueMod Add, Nothing, Nothing )
-
                         _ ->
                             ( ValueMod Add, Nothing, Nothing )
+
+                baseModel =
+                    init_
             in
-            init_ AttackMod
+            { baseModel
+                | nextModifierForm = nextModifierForm
+                , resultModifier =
+                    Just
+                        ( resultType
+                        , resultTypeLabel resultType
+                        )
+            }
 
         _ ->
-            init_ AttackMod
+            init_
 
 
-modelToModfier : Model_ -> Maybe Modifier
-modelToModfier model =
+modelToModifier : Model_ -> Maybe Modifier
+modelToModifier model =
     let
         compare =
             model.compareCondition
@@ -115,7 +129,7 @@ modelToModfier model =
                                 Maybe.map Run.SubtractValue model.valueMod
 
                             InfluenceNext ->
-                                Maybe.andThen modelToModfier
+                                Maybe.andThen modelToModifier
                                     (case model.nextModifierForm of
                                         Just (Model model_) ->
                                             Just model_
@@ -162,14 +176,8 @@ type Msg
     | NextModifierMsg Msg
 
 
-type ConfigType
-    = AttackMod
-    | WoundMod
-    | SaveMod
-
-
-init_ : ConfigType -> Model_
-init_ configType =
+init_ : Model_
+init_ =
     { compareDropdownMenu = DropdownMenu.init
     , compareCondition = Nothing
     , resultDropdownMenu = DropdownMenu.init
@@ -181,9 +189,9 @@ init_ configType =
     }
 
 
-init : ConfigType -> Model
-init configType =
-    Model (init_ configType)
+init : Model
+init =
+    Model init_
 
 
 update_ : Msg -> Model_ -> ( Model_, Effect )
@@ -265,7 +273,7 @@ update_ msg model =
                 , nextModifierForm =
                     case dropdownMenuMsg of
                         DropdownMenu.ItemSelected ( InfluenceNext, _ ) _ ->
-                            Just <| Model (init_ AttackMod)
+                            Just <| Model init_
 
                         DropdownMenu.ItemSelected _ _ ->
                             Nothing
@@ -302,7 +310,7 @@ view model config =
                     [ A.class "white pa3"
                     , liveAssertive
                     ]
-                    [ case modelToModfier model_ of
+                    [ case modelToModifier model_ of
                         Just mod ->
                             H.button
                                 [ A.class <|
@@ -383,17 +391,18 @@ view_ model config nested =
                 , label = "Result modifier"
                 , id = id ++ "--result-modifier-dropdown"
                 , items =
-                    [ ( Reroll, "Re-roll dice" )
-                    , ( RerollNew, "Re-roll new dice" )
-                    , ( ValueMod Add, "Modify roll: add" )
-                    , ( ValueMod Subtract, "Modfiy roll: subtract" )
+                    [ Reroll
+                    , RerollNew
+                    , ValueMod Add
+                    , ValueMod Subtract
                     ]
                         ++ (if nested then
                                 []
 
                             else
-                                [ ( InfluenceNext, "Apply modifier to next roll" ) ]
+                                [ InfluenceNext ]
                            )
+                        |> List.map (\v -> ( v, resultTypeLabel v ))
                 }
                 |> H.map ResultMenuMsg
             , case model.resultModifier of
@@ -426,3 +435,22 @@ view_ model config nested =
             Nothing ->
                 H.text ""
         ]
+
+
+resultTypeLabel : ResultType -> String
+resultTypeLabel resultType =
+    case resultType of
+        Reroll ->
+            "Re-roll dice"
+
+        RerollNew ->
+            "Re-roll new dice"
+
+        ValueMod Add ->
+            "Modify roll: add"
+
+        ValueMod Subtract ->
+            "Modify roll: subtract"
+
+        InfluenceNext ->
+            "Apply modifier to next phase"

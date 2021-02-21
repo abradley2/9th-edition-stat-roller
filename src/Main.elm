@@ -67,7 +67,7 @@ init flagsJson =
     in
     ( { initialized = ResultX.isOk flagsResult
       , modalOpen = False
-      , modifierForm = ModifierForm.init ModifierForm.AttackMod
+      , modifierForm = ModifierForm.init
       , flags =
             Result.withDefault
                 { seed = Random.initialSeed 0
