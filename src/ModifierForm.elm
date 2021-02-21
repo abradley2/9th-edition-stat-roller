@@ -299,18 +299,21 @@ update msg model =
                 |> Tuple.mapFirst Model
 
 
-type alias Config =
+type alias Config a =
     { id : String
+    , onSubmit : Modifier -> a
+    , mapMsg : Msg -> a
     }
 
 
-view : Model -> Config -> H.Html Msg
+view : Model -> Config a -> H.Html a
 view model config =
     case model of
         Model model_ ->
             H.div
                 []
                 [ view_ model_ config False
+                    |> H.map config.mapMsg
                 , H.div
                     [ A.class "white pa3"
                     , liveAssertive
@@ -322,6 +325,7 @@ view model config =
                                     "black-80 ba b--light-blue bg-light-blue f6 "
                                         ++ " hover-bg-transparent hover-white grow "
                                         ++ " pointer outline-0 br2 pa2 shadow-1 "
+                                , E.onClick <| config.onSubmit mod
                                 ]
                                 [ H.text "Apply Modifier" ]
 
@@ -345,7 +349,7 @@ withLabel fieldId label field =
         ]
 
 
-view_ : Model_ -> Config -> Bool -> H.Html Msg
+view_ : Model_ -> Config a -> Bool -> H.Html Msg
 view_ model config nested =
     let
         id =

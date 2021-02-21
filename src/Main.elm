@@ -32,18 +32,20 @@ fromEffect eff =
             List.map fromEffect cmds |> Cmd.batch
 
 
+type ModifierCategory
+    = WeaponSkill
+    | Wound
+    | Save
+
+
 type Msg
     = NoOp
     | ElementFocused (Result Dom.Error ())
     | OptionsButtonClicked String
     | CloseModalButtonClicked
+    | OpenModifierForm ModifierCategory
+    | SubmitModifierForm ModifierCategory Modifier
     | ModifierFormMsg ModifierForm.Msg
-    | OpenWeaponSkillModifierForm
-    | SubmitWeaponSkillModifierForm Modifier
-    | OpenWoundModifierForm
-    | SubmitWoundModifierForm Modifier
-    | OpenSaveModifierForm
-    | SubmitSaveModifierForm Modifier
 
 
 type alias Flags =
@@ -61,6 +63,7 @@ type alias Model =
     { initialized : Bool
     , flags : Flags
     , modalOpen : Bool
+    , modifierCategory : ModifierCategory
     , modifierForm : ModifierForm.Model
     , weaponSkill : Maybe Int
     , attackingUnits : Maybe Int
@@ -108,6 +111,7 @@ init flagsJson =
       , weaponSkillModifier = Nothing
       , woundModifier = Nothing
       , saveModifier = Nothing
+      , modifierCategory = Save
       }
     , EffCmd Cmd.none
     )
@@ -116,71 +120,75 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
-        OpenSaveModifierForm ->
-            let
-                modifierForm =
-                    model.saveModifier
-                        |> Maybe.map ModifierForm.modifierToModel
-                        |> Maybe.withDefault ModifierForm.init
-            in
-            ( { model
-                | modalOpen = True
-                , modifierForm = modifierForm
-              }
-            , EffCmd Cmd.none
-            )
+        SubmitModifierForm modifierCategory modifier ->
+            case modifierCategory of
+                WeaponSkill ->
+                    ( { model
+                        | weaponSkillModifier = Just modifier
+                        , modalOpen = False
+                      }
+                    , EffCmd Cmd.none
+                    )
 
-        SubmitSaveModifierForm saveModifier ->
-            ( { model
-                | modalOpen = False
-                , saveModifier = Just saveModifier
-              }
-            , EffCmd Cmd.none
-            )
+                Wound ->
+                    ( { model
+                        | woundModifier = Just modifier
+                        , modalOpen = False
+                      }
+                    , EffCmd Cmd.none
+                    )
 
-        OpenWoundModifierForm ->
-            let
-                modifierForm =
-                    model.woundModifier
-                        |> Maybe.map ModifierForm.modifierToModel
-                        |> Maybe.withDefault ModifierForm.init
-            in
-            ( { model
-                | modalOpen = True
-                , modifierForm = modifierForm
-              }
-            , EffCmd Cmd.none
-            )
+                Save ->
+                    ( { model
+                        | saveModifier = Just modifier
+                        , modalOpen = False
+                      }
+                    , EffCmd Cmd.none
+                    )
 
-        SubmitWoundModifierForm woundModifier ->
-            ( { model
-                | modalOpen = False
-                , woundModifier = Just woundModifier
-              }
-            , EffCmd Cmd.none
-            )
+        OpenModifierForm modType ->
+            case modType of
+                WeaponSkill ->
+                    let
+                        modifierForm =
+                            model.weaponSkillModifier
+                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.withDefault ModifierForm.init
+                    in
+                    ( { model
+                        | modifierForm = modifierForm
+                        , modalOpen = True
+                      }
+                    , EffCmd Cmd.none
+                    )
 
-        OpenWeaponSkillModifierForm ->
-            let
-                modifierForm =
-                    model.weaponSkillModifier
-                        |> Maybe.map ModifierForm.modifierToModel
-                        |> Maybe.withDefault ModifierForm.init
-            in
-            ( { model
-                | modalOpen = True
-                , modifierForm = modifierForm
-              }
-            , EffCmd Cmd.none
-            )
+                Wound ->
+                    let
+                        modifierForm =
+                            model.woundModifier
+                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.withDefault ModifierForm.init
+                    in
+                    ( { model
+                        | modifierForm = modifierForm
+                        , modalOpen = True
+                      }
+                    , EffCmd Cmd.none
+                    )
 
-        SubmitWeaponSkillModifierForm weaponSkillModifier ->
-            ( { model
-                | modalOpen = False
-                , weaponSkillModifier = Just weaponSkillModifier
-              }
-            , EffCmd Cmd.none
-            )
+                Save ->
+                    let
+                        modifierForm =
+                            model.saveModifier
+                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.withDefault ModifierForm.init
+                    in
+                    ( { model
+                        | modifierForm = modifierForm
+                        , modalOpen = True
+                      }
+                    , EffCmd Cmd.none
+                    )
 
         ModifierFormMsg modifierFormMsg ->
             let
@@ -297,9 +305,11 @@ modalView model =
                 ]
                 []
             , if isOpen then
-                H.map
-                    ModifierFormMsg
-                    (ModifierForm.view model.modifierForm { id = "my-form" })
+                ModifierForm.view model.modifierForm
+                    { id = "my-form"
+                    , mapMsg = ModifierFormMsg
+                    , onSubmit = SubmitModifierForm model.modifierCategory
+                    }
 
               else
                 H.text ""
@@ -326,7 +336,7 @@ view model =
     H.div
         [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
         ]
-        [ cardView (Just OpenWeaponSkillModifierForm) "weapon-skill" <|
+        [ cardView (Just <| OpenModifierForm WeaponSkill) "weapon-skill" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -378,7 +388,7 @@ view model =
                     ]
                     [ H.text "Attacks per Unit" ]
                 ]
-        , cardView (Just OpenWoundModifierForm) "strength" <|
+        , cardView (Just <| OpenModifierForm Wound) "strength" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -446,7 +456,7 @@ view model =
                     ]
                     [ H.text "Toughness" ]
                 ]
-        , cardView (Just OpenSaveModifierForm) "save" <|
+        , cardView (Just <| OpenModifierForm Save) "save" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
