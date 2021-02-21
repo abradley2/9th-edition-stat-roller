@@ -13,6 +13,7 @@ import Json.Decode as D
 import ModifierForm
 import Random exposing (Seed)
 import Result.Extra as ResultX
+import Run exposing (Compare(..), Modifier(..))
 import TextInput
 
 
@@ -37,6 +38,12 @@ type Msg
     | OptionsButtonClicked String
     | CloseModalButtonClicked
     | ModifierFormMsg ModifierForm.Msg
+    | OpenWeaponSkillModifierForm
+    | SubmitWeaponSkillModifierForm Modifier
+    | OpenWoundModifierForm
+    | SubmitWoundModifierForm Modifier
+    | OpenSaveModifierForm
+    | SubmitSaveModifierForm Modifier
 
 
 type alias Flags =
@@ -45,11 +52,27 @@ type alias Flags =
     }
 
 
+map8 f8 a b c d e f g h =
+    Maybe.map4 f8 a b c d
+        |> Maybe.andThen (\f4 -> Maybe.map4 f4 e f g h)
+
+
 type alias Model =
     { initialized : Bool
     , flags : Flags
     , modalOpen : Bool
     , modifierForm : ModifierForm.Model
+    , weaponSkill : Maybe Int
+    , attackingUnits : Maybe Int
+    , attacksPerUnit : Maybe Int
+    , strength : Maybe Int
+    , armorPenetration : Maybe Int
+    , damage : Maybe Int
+    , toughness : Maybe Int
+    , save : Maybe Int
+    , weaponSkillModifier : Maybe Modifier
+    , woundModifier : Maybe Modifier
+    , saveModifier : Maybe Modifier
     }
 
 
@@ -74,6 +97,17 @@ init flagsJson =
                 , seeds = [ Random.initialSeed 0 ]
                 }
                 flagsResult
+      , armorPenetration = Nothing
+      , attackingUnits = Nothing
+      , attacksPerUnit = Nothing
+      , damage = Nothing
+      , save = Nothing
+      , strength = Nothing
+      , toughness = Nothing
+      , weaponSkill = Nothing
+      , weaponSkillModifier = Nothing
+      , woundModifier = Nothing
+      , saveModifier = Nothing
       }
     , EffCmd Cmd.none
     )
@@ -82,6 +116,72 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
+        OpenSaveModifierForm ->
+            let
+                modifierForm =
+                    model.saveModifier
+                        |> Maybe.map ModifierForm.modifierToModel
+                        |> Maybe.withDefault ModifierForm.init
+            in
+            ( { model
+                | modalOpen = True
+                , modifierForm = modifierForm
+              }
+            , EffCmd Cmd.none
+            )
+
+        SubmitSaveModifierForm saveModifier ->
+            ( { model
+                | modalOpen = False
+                , saveModifier = Just saveModifier
+              }
+            , EffCmd Cmd.none
+            )
+
+        OpenWoundModifierForm ->
+            let
+                modifierForm =
+                    model.woundModifier
+                        |> Maybe.map ModifierForm.modifierToModel
+                        |> Maybe.withDefault ModifierForm.init
+            in
+            ( { model
+                | modalOpen = True
+                , modifierForm = modifierForm
+              }
+            , EffCmd Cmd.none
+            )
+
+        SubmitWoundModifierForm woundModifier ->
+            ( { model
+                | modalOpen = False
+                , woundModifier = Just woundModifier
+              }
+            , EffCmd Cmd.none
+            )
+
+        OpenWeaponSkillModifierForm ->
+            let
+                modifierForm =
+                    model.weaponSkillModifier
+                        |> Maybe.map ModifierForm.modifierToModel
+                        |> Maybe.withDefault ModifierForm.init
+            in
+            ( { model
+                | modalOpen = True
+                , modifierForm = modifierForm
+              }
+            , EffCmd Cmd.none
+            )
+
+        SubmitWeaponSkillModifierForm weaponSkillModifier ->
+            ( { model
+                | modalOpen = False
+                , weaponSkillModifier = Just weaponSkillModifier
+              }
+            , EffCmd Cmd.none
+            )
+
         ModifierFormMsg modifierFormMsg ->
             let
                 ( modifierForm, modifierFormCmd ) =
@@ -207,25 +307,11 @@ modalView model =
         ]
 
 
-resultDisplay : List Seed -> H.Html Msg
-resultDisplay seeds =
-    let
-        allResult =
-            seeds
-                |> List.map (flip run <| sampleSetup)
-
-        total =
-            toFloat (List.foldr (+) 0 allResult) / toFloat (List.length allResult)
-    in
-    H.text ""
-
-
 layout : Model -> H.Html Msg
 layout model =
     H.div
         []
-        [ lazy resultDisplay model.flags.seeds
-        , view model
+        [ view model
         , modalView model
         ]
 
@@ -383,306 +469,3 @@ main =
         , subscriptions = \_ -> Sub.none
         , view = layout
         }
-
-
-type alias Die =
-    { sides : Int
-    , passValue : Int
-    , modifier : Maybe Modifier
-    }
-
-
-type Modifier
-    = NoMod
-    | AddValue Int
-    | SubtractValue Int
-    | InfluenceNext Modifier
-    | Reroll
-    | Compare Compare Int Modifier
-    | MaybeMod (Maybe Modifier)
-    | Batch (List Modifier)
-
-
-type Compare
-    = Lte
-    | Gte
-    | Eq
-
-
-rollDie : Random.Seed -> Die -> ( Int, Random.Seed )
-rollDie seed die =
-    Random.step (Random.int 1 die.sides) seed
-
-
-applyModifier : Die -> Modifier -> ( Int, Random.Seed ) -> ( Random.Seed, Int, Maybe Modifier )
-applyModifier die modifier ( currentVal, seed ) =
-    case modifier of
-        MaybeMod mMod ->
-            mMod
-                |> Maybe.map (\mod -> applyModifier die mod ( currentVal, seed ))
-                |> Maybe.withDefault ( seed, currentVal, Nothing )
-
-        Compare Lte val nextMod ->
-            if currentVal <= val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        Compare Gte val nextMod ->
-            if currentVal >= val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        Compare Eq val nextMod ->
-            if currentVal == val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        AddValue plusVal ->
-            ( seed, currentVal + plusVal, Nothing )
-
-        SubtractValue minusVal ->
-            ( seed, currentVal - minusVal, Nothing )
-
-        Reroll ->
-            let
-                ( nextVal, nextSeed ) =
-                    rollDie seed die
-            in
-            ( nextSeed, nextVal, Nothing )
-
-        InfluenceNext nextMod ->
-            ( seed, currentVal, Just nextMod )
-
-        NoMod ->
-            ( seed, currentVal, Nothing )
-
-        Batch modlist ->
-            List.foldr
-                (\mod ( curSeed, curVal, curMod ) ->
-                    applyModifier die mod ( curVal, curSeed )
-                        |> (\( nextSeed, nextVal, nextMod ) ->
-                                ( nextSeed, nextVal, Just <| Batch [ MaybeMod curMod, MaybeMod nextMod ] )
-                           )
-                )
-                ( seed, currentVal, Nothing )
-                modlist
-
-
-type alias Setup =
-    { attacks : Int
-    , attackModifier : Maybe Modifier
-    , strength : Int
-    , strengthModifier : Maybe Modifier
-    , weaponSkill : Int
-    , weaponSkillModifier : Maybe Modifier
-    , toughness : Int
-    , damage : Int
-    , armorPenetration : Int
-    , save : Int
-    }
-
-
-type Damage
-    = Fixed Int
-    | Roll Int
-
-
-type Phase
-    = Attack (List Die)
-    | Wound (List Die)
-    | Save (List Die)
-    | Damage (List Die)
-    | Resolve Int
-
-
-woundPassValue : Setup -> Int
-woundPassValue setup =
-    if setup.strength >= setup.toughness * 2 then
-        2
-
-    else if setup.strength > setup.toughness then
-        3
-
-    else if setup.strength == setup.toughness then
-        4
-
-    else if setup.strength * 2 <= setup.toughness then
-        6
-
-    else
-        5
-
-
-run_ : Random.Seed -> Setup -> Phase -> Phase -> Int
-run_ seed setup phase nextPhase =
-    case ( phase, nextPhase ) of
-        ( Attack dice, Wound woundDice ) ->
-            if setup.attacks > 0 then
-                run_
-                    seed
-                    { setup | attacks = setup.attacks - 1 }
-                    (Attack <| Die 6 setup.weaponSkill setup.weaponSkillModifier :: dice)
-                    nextPhase
-
-            else
-                case dice of
-                    [] ->
-                        run_ seed setup nextPhase (Save [])
-
-                    currentRoll :: nextRolls ->
-                        let
-                            ( rollValue_, nextSeed_ ) =
-                                rollDie seed currentRoll
-
-                            ( nextSeed, rollValue, nextMod ) =
-                                setup.attackModifier
-                                    |> Maybe.map (\mod -> applyModifier currentRoll mod ( rollValue_, nextSeed_ ))
-                                    |> Maybe.withDefault ( nextSeed_, rollValue_, Nothing )
-
-                            nextWounds =
-                                if rollValue >= currentRoll.passValue then
-                                    Die 6 (woundPassValue setup) nextMod :: woundDice
-
-                                else
-                                    woundDice
-                        in
-                        run_
-                            nextSeed
-                            setup
-                            (Attack nextRolls)
-                            (Wound nextWounds)
-
-        ( Wound dice, Save saveDice ) ->
-            case dice of
-                [] ->
-                    run_
-                        seed
-                        setup
-                        (Save saveDice)
-                        (Damage [])
-
-                currentRoll :: nextRolls ->
-                    let
-                        ( nextSeed, rollValue, nextMod ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
-
-                        modWithAp =
-                            Batch
-                                [ MaybeMod nextMod
-                                , SubtractValue setup.armorPenetration
-                                ]
-                                |> Just
-
-                        nextSaves =
-                            if rollValue >= currentRoll.passValue then
-                                Die 6 setup.save modWithAp :: saveDice
-
-                            else
-                                saveDice
-                    in
-                    run_
-                        nextSeed
-                        setup
-                        (Wound nextRolls)
-                        (Save nextSaves)
-
-        ( Save dice, Damage damageDice ) ->
-            case dice of
-                [] ->
-                    run_ seed setup (Damage damageDice) (Resolve 0)
-
-                currentRoll :: nextRolls ->
-                    let
-                        ( nextSeed, rollValue, nextMod ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
-
-                        nextDamageDice =
-                            if rollValue < currentRoll.passValue then
-                                Die setup.damage 0 nextMod :: damageDice
-
-                            else
-                                damageDice
-                    in
-                    run_
-                        nextSeed
-                        setup
-                        (Save nextRolls)
-                        (Damage nextDamageDice)
-
-        ( Damage dice, Resolve woundCount ) ->
-            case dice of
-                [] ->
-                    run_
-                        seed
-                        setup
-                        (Resolve woundCount)
-                        (Resolve woundCount)
-
-                currentRoll :: nextRolls ->
-                    let
-                        ( nextSeed, rollVal, _ ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
-                    in
-                    run_
-                        nextSeed
-                        setup
-                        (Damage nextRolls)
-                        (Resolve <| woundCount + rollVal)
-
-        ( Resolve result, _ ) ->
-            result
-
-        ( a, b ) ->
-            let
-                c =
-                    Debug.log "phase = " ( printPhase a, printPhase b )
-            in
-            -1
-
-
-printPhase : Phase -> String
-printPhase p =
-    case p of
-        Attack _ ->
-            "Attack"
-
-        Wound _ ->
-            "Wound"
-
-        Save _ ->
-            "Save"
-
-        Damage _ ->
-            "Damage"
-
-        Resolve _ ->
-            "Resolve"
-
-
-sampleSetup : Setup
-sampleSetup =
-    Setup
-        20
-        Nothing
-        4
-        Nothing
-        3
-        Nothing
-        4
-        1
-        0
-        3
-
-
-run : Random.Seed -> Setup -> Int
-run seed setup =
-    run_ seed setup (Attack []) (Wound [])

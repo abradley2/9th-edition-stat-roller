@@ -40,8 +40,10 @@ type alias Model_ =
     }
 
 
-modifierToModel : Modifier -> Model_
+
+modifierToModel : Modifier -> Model
 modifierToModel modifier =
+    Model <|
     case modifier of
         NoMod ->
             init_
@@ -53,7 +55,6 @@ modifierToModel modifier =
                         Run.InfluenceNext nextMod ->
                             nextMod
                                 |> modifierToModel
-                                |> Model
                                 |> Just
 
                         _ ->
@@ -80,7 +81,11 @@ modifierToModel modifier =
                     init_
             in
             { baseModel
-                | nextModifierForm = nextModifierForm
+                | passValue = Just passValue
+                , valueMod = valueMod
+                , newPassValue = newPassValue
+                , compareCondition = Just (compare, "")
+                , nextModifierForm = nextModifierForm
                 , resultModifier =
                     Just
                         ( resultType

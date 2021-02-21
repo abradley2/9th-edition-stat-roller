@@ -103,14 +103,14 @@ applyModifier die modifier ( currentVal, seed ) =
 
 type alias Setup =
     { attacks : Int
-    , attackModifier : Maybe Modifier
     , strength : Int
-    , strengthModifier : Maybe Modifier
+    , woundModifier : Maybe Modifier
     , weaponSkill : Int
     , weaponSkillModifier : Maybe Modifier
     , toughness : Int
     , damage : Int
     , armorPenetration : Int
+    , saveModifier : Maybe Modifier
     , save : Int
     }
 
@@ -168,7 +168,7 @@ run_ seed setup phase nextPhase =
                                 rollDie seed currentRoll
 
                             ( nextSeed, rollValue, nextMod ) =
-                                setup.attackModifier
+                                currentRoll.modifier
                                     |> Maybe.map (\mod -> applyModifier currentRoll mod ( rollValue_, nextSeed_ ))
                                     |> Maybe.withDefault ( nextSeed_, rollValue_, Nothing )
 
@@ -198,7 +198,12 @@ run_ seed setup phase nextPhase =
                     let
                         ( nextSeed, rollValue, nextMod ) =
                             rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
+                                |> applyModifier currentRoll
+                                    (Batch
+                                        [ MaybeMod currentRoll.modifier
+                                        , MaybeMod setup.woundModifier
+                                        ]
+                                    )
 
                         modWithAp =
                             Batch
