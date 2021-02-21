@@ -217,21 +217,26 @@ update msg model =
             ( model, EffCmd Cmd.none )
 
 
-cardView : String -> H.Html Msg -> H.Html Msg
-cardView optionId body =
+cardView : Maybe Msg -> String -> H.Html Msg -> H.Html Msg
+cardView optionsHandler optionId body =
     H.div
         [ A.class "pa2 w-50 w-33-ns w-33-m w-20-l relative" ]
         [ H.div
             [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
             ]
             [ body ]
-        , iconButtonView
-            [ A.class "fas fa-cogs"
-            , A.id <| optionId ++ "--modal-button"
-            , hasDialogPopUp
-            , E.onClick <| OptionsButtonClicked (optionId ++ "--modal-button")
-            ]
-            []
+        , case optionsHandler of
+            Just onOptionsClicked ->
+                iconButtonView
+                    [ A.class "fas fa-cogs"
+                    , A.id <| optionId ++ "--modal-button"
+                    , hasDialogPopUp
+                    , E.onClick onOptionsClicked
+                    ]
+                    []
+
+            Nothing ->
+                H.text ""
         ]
 
 
@@ -321,7 +326,7 @@ view model =
     H.div
         [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
         ]
-        [ cardView "weapon-skill" <|
+        [ cardView (Just OpenWeaponSkillModifierForm) "weapon-skill" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -339,7 +344,7 @@ view model =
                     [ H.text "Weapon/Ballistic Skill"
                     ]
                 ]
-        , cardView "attacks-per-unit" <|
+        , cardView Nothing "attacks-per-unit" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -356,7 +361,7 @@ view model =
                     ]
                     [ H.text "Number of Attacking Units" ]
                 ]
-        , cardView "attacks-per-weapon" <|
+        , cardView Nothing "attacks-per-weapon" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -373,7 +378,7 @@ view model =
                     ]
                     [ H.text "Attacks per Unit" ]
                 ]
-        , cardView "strength" <|
+        , cardView (Just OpenWoundModifierForm) "strength" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -390,7 +395,7 @@ view model =
                     ]
                     [ H.text "Strength" ]
                 ]
-        , cardView "armor-penetration" <|
+        , cardView Nothing "armor-penetration" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -407,7 +412,7 @@ view model =
                     ]
                     [ H.text "Armor Penetration" ]
                 ]
-        , cardView "damage-dice" <|
+        , cardView Nothing "damage-dice" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -424,7 +429,7 @@ view model =
                     ]
                     [ H.text "Damage" ]
                 ]
-        , cardView "toughness" <|
+        , cardView Nothing "toughness" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
@@ -441,7 +446,7 @@ view model =
                     ]
                     [ H.text "Toughness" ]
                 ]
-        , cardView "save" <|
+        , cardView (Just OpenSaveModifierForm) "save" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
