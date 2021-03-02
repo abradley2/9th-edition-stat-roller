@@ -54,9 +54,9 @@ type alias Flags =
     }
 
 
-map8 f8 a b c d e f g h =
-    Maybe.map4 f8 a b c d
-        |> Maybe.andThen (\f4 -> Maybe.map4 f4 e f g h)
+map10 f10 a b c d e f g h i j =
+    Maybe.map5 f10 a b c d e
+        |> Maybe.andThen (\f5 -> Maybe.map5 f5 f g h i j)
 
 
 type alias Model =
@@ -77,6 +77,23 @@ type alias Model =
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
     }
+
+modelToSetup : Model -> Maybe Run.Setup
+modelToSetup model =
+    map10
+        Run.Setup
+        (Maybe.map2 (*) model.attackingUnits model.attacksPerUnit)
+        model.strength
+        (Just model.woundModifier)
+        model.weaponSkill
+        (Just model.weaponSkillModifier)
+        model.toughness
+        model.damage
+        model.armorPenetration
+        (Just model.saveModifier)
+        model.save
+
+
 
 
 init : D.Value -> ( Model, Effect )

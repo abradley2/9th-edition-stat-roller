@@ -149,12 +149,6 @@ modelToModifier model =
         compare
         result
 
-
-generateModifier : Model_ -> Maybe Modifier
-generateModifier model =
-    Nothing
-
-
 type Model
     = Model Model_
 
