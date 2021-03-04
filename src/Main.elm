@@ -5,6 +5,7 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Browser.Dom as Dom
+import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
@@ -13,9 +14,11 @@ import Json.Decode as D
 import ModifierForm
 import Random exposing (Seed)
 import Result.Extra as ResultX
-import Run exposing (Compare(..), Modifier(..))
+import Run exposing (Compare(..), Damage, Modifier(..))
 import TextInput
+import Fields
 
+something = Fields.weaponSkill
 
 type Effect
     = EffCmd (Cmd Msg)
@@ -46,6 +49,14 @@ type Msg
     | OpenModifierForm ModifierCategory
     | SubmitModifierForm ModifierCategory Modifier
     | ModifierFormMsg ModifierForm.Msg
+    | NumberOfUnitsChanged String
+    | AttacksPerUnitChanged String
+    | ArmorPenetrationChanged String
+    | DamageChanged String
+    | StrengthChanged String
+    | ToughnessChanged String
+    | SaveChanged String
+    | WeaponSkillChanged String
 
 
 type alias Flags =
@@ -76,7 +87,9 @@ type alias Model =
     , weaponSkillModifier : Maybe Modifier
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
+    , formErrors : Dict String String
     }
+
 
 modelToSetup : Model -> Maybe Run.Setup
 modelToSetup model =
@@ -92,8 +105,6 @@ modelToSetup model =
         model.armorPenetration
         (Just model.saveModifier)
         model.save
-
-
 
 
 init : D.Value -> ( Model, Effect )
@@ -129,6 +140,7 @@ init flagsJson =
       , woundModifier = Nothing
       , saveModifier = Nothing
       , modifierCategory = Save
+      , formErrors = Dict.empty
       }
     , EffCmd Cmd.none
     )
@@ -137,6 +149,62 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
+        WeaponSkillChanged value ->
+            ( { model
+                | weaponSkill = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        ToughnessChanged value ->
+            ( { model
+                | toughness = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        StrengthChanged value ->
+            ( { model
+                | strength = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        DamageChanged value ->
+            ( { model
+                | damage = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        ArmorPenetrationChanged value ->
+            ( { model
+                | armorPenetration = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        NumberOfUnitsChanged value ->
+            ( { model
+                | attackingUnits = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        SaveChanged value ->
+            ( { model
+                | save = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
+        AttacksPerUnitChanged value ->
+            ( { model
+                | attacksPerUnit = String.toInt value
+              }
+            , EffCmd Cmd.none
+            )
+
         SubmitModifierForm modifierCategory modifier ->
             case modifierCategory of
                 WeaponSkill ->
@@ -347,6 +415,12 @@ layout model =
     H.div
         []
         [ view model
+        , case modelToSetup model of
+            Just setup ->
+                H.button [] [ H.text "Run it" ]
+
+            Nothing ->
+                H.text ""
         , modalView model
         ]
 
@@ -365,7 +439,7 @@ view model =
                     , A.placeholder "3+"
                     , A.id "weapon-skill"
                     ]
-                    (always NoOp)
+                    WeaponSkillChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -374,20 +448,20 @@ view model =
                     [ H.text "Weapon/Ballistic Skill"
                     ]
                 ]
-        , cardView Nothing "attacks-per-unit" <|
+        , cardView Nothing "number-of-units" <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "2"
-                    , A.id "attacks-per-unit"
+                    , A.id "number-of-units"
                     ]
-                    (always NoOp)
+                    NumberOfUnitsChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "attacks-per-unit"
+                    , A.for "number-of-units"
                     ]
                     [ H.text "Number of Attacking Units" ]
                 ]
@@ -400,7 +474,7 @@ view model =
                     , A.placeholder "2"
                     , A.id "attacks-per-weapon"
                     ]
-                    (always NoOp)
+                    AttacksPerUnitChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -417,7 +491,7 @@ view model =
                     , A.placeholder "4"
                     , A.id "strength"
                     ]
-                    (always NoOp)
+                    StrengthChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -434,7 +508,7 @@ view model =
                     , A.placeholder "-2"
                     , A.id "armor-penetration"
                     ]
-                    (always NoOp)
+                    ArmorPenetrationChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -451,7 +525,7 @@ view model =
                     , A.placeholder "D3"
                     , A.id "damage-dice"
                     ]
-                    (always NoOp)
+                    DamageChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -468,7 +542,7 @@ view model =
                     , A.placeholder "4"
                     , A.id "toughness"
                     ]
-                    (always NoOp)
+                    ToughnessChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -485,7 +559,7 @@ view model =
                     , A.placeholder "5+"
                     , A.id "save"
                     ]
-                    (always NoOp)
+                    SaveChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
