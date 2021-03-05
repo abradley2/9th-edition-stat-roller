@@ -16,9 +16,12 @@ import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Damage, Modifier(..))
 import TextInput
+import Monocle.Compose as Compose
+import Fields exposing (Fields)
 import Fields
-
-something = Fields.weaponSkill
+import Fields
+import Fields
+import Fields
 
 type Effect
     = EffCmd (Cmd Msg)
@@ -76,23 +79,22 @@ type alias Model =
     , modalOpen : Bool
     , modifierCategory : ModifierCategory
     , modifierForm : ModifierForm.Model
-    , weaponSkill : Maybe Int
-    , attackingUnits : Maybe Int
-    , attacksPerUnit : Maybe Int
-    , strength : Maybe Int
-    , armorPenetration : Maybe Int
-    , damage : Maybe Int
-    , toughness : Maybe Int
-    , save : Maybe Int
     , weaponSkillModifier : Maybe Modifier
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
-    , formErrors : Dict String String
+    , fields : Fields
     }
 
 
 modelToSetup : Model -> Maybe Run.Setup
 modelToSetup model =
+    let
+        unitCount =
+            Fields.unitCountValue.get
+
+        strength =
+            Fields.strength.get model |> .value
+    in
     map10
         Run.Setup
         (Maybe.map2 (*) model.attackingUnits model.attacksPerUnit)
@@ -128,19 +130,11 @@ init flagsJson =
                 , seeds = [ Random.initialSeed 0 ]
                 }
                 flagsResult
-      , armorPenetration = Nothing
-      , attackingUnits = Nothing
-      , attacksPerUnit = Nothing
-      , damage = Nothing
-      , save = Nothing
-      , strength = Nothing
-      , toughness = Nothing
-      , weaponSkill = Nothing
+      , fields = Fields.init
       , weaponSkillModifier = Nothing
       , woundModifier = Nothing
       , saveModifier = Nothing
       , modifierCategory = Save
-      , formErrors = Dict.empty
       }
     , EffCmd Cmd.none
     )

@@ -24,91 +24,169 @@ type alias Fields =
     }
 
 
+type alias Model a =
+    { a | fields : Fields }
+
+
 init : Fields
 init =
-    { weaponSkill = Field weaponSkillId "Weapon/Ballistic Skill" Nothing Nothing
-    , unitCount = Field unitCountId "Number of Attacking Units" Nothing Nothing
-    , attackCount = Field attackCountId "Attacks per Unit" Nothing Nothing
-    , strength = Field strengthId "Attack Strength" Nothing Nothing
-    , armorPenetration = Field armorPenetrationId "Armor Penetration" Nothing Nothing
-    , damage = Field damageId "Damage" Nothing Nothing
-    , toughness = Field toughnessId "Toughness" Nothing Nothing
-    , save = Field saveId "Save" Nothing Nothing
+    { weaponSkill = Field "weapon-skill" "Weapon/Ballistic Skill" Nothing Nothing
+    , unitCount = Field "unit-count" "Number of Attacking Units" Nothing Nothing
+    , attackCount = Field "attack count" "Attacks per Unit" Nothing Nothing
+    , strength = Field "strength" "Attack Strength" Nothing Nothing
+    , armorPenetration = Field "armor-penetration" "Armor Penetration" Nothing Nothing
+    , damage = Field "damage" "Damage" Nothing Nothing
+    , toughness = Field "toughness" "Toughness" Nothing Nothing
+    , save = Field "save" "Save" Nothing Nothing
     }
 
 
-fieldLabel : Lens Fields (Field a) -> Lens Fields String
-fieldLabel =
-    Compose.lensWithLens (Lens .label (\b a -> { a | label = b }))
+fields : Lens (Model b) Fields
+fields =
+    Lens .fields (\b a -> { a | fields = b })
 
 
-weaponSkill : Lens Fields (Field Int)
+fieldValue : Lens (Field a) (Maybe a)
+fieldValue =
+    Lens .value (\b a -> { a | value = b })
+
+
+fieldError : Lens (Field a) (Maybe String)
+fieldError =
+    Lens .error (\b a -> { a | error = b })
+
+
+weaponSkill : Lens (Model b) (Field Int)
 weaponSkill =
-    Lens .weaponSkill (\b a -> { a | weaponSkill = b })
+    Compose.lensWithLens
+        (Lens .weaponSkill (\b a -> { a | weaponSkill = b }))
+        fields
 
 
-weaponSkillId =
-    "weapon-skill"
+weaponSkillValue : Lens (Model b) (Maybe Int)
+weaponSkillValue =
+    Compose.lensWithLens fieldValue weaponSkill
 
 
-unitCount : Lens Fields (Field Int)
+weaponSkillError : Lens (Model b) (Maybe String)
+weaponSkillError =
+    Compose.lensWithLens fieldError weaponSkill
+
+
+unitCount : Lens (Model b) (Field Int)
 unitCount =
-    Lens .unitCount (\b a -> { a | unitCount = b })
+    Compose.lensWithLens
+        (Lens .unitCount (\b a -> { a | unitCount = b }))
+        fields
 
 
-unitCountId =
-    "unit-count"
+unitCountValue : Lens (Model b) (Maybe Int)
+unitCountValue =
+    Compose.lensWithLens fieldValue unitCount
 
 
-attackCount : Lens Fields (Field Int)
+unitCountError : Lens (Model b) (Maybe String)
+unitCountError =
+    Compose.lensWithLens fieldError unitCount
+
+
+attackCount : Lens (Model b) (Field Int)
 attackCount =
-    Lens .attackCount (\b a -> { a | attackCount = b })
+    Compose.lensWithLens
+        (Lens .attackCount (\b a -> { a | attackCount = b }))
+        fields
 
 
-attackCountId =
-    "attack-count"
+attackCountValue : Lens (Model b) (Maybe Int)
+attackCountValue =
+    Compose.lensWithLens fieldValue attackCount
 
 
-strength : Lens Fields (Field Int)
+attackCountError : Lens (Model b) (Maybe String)
+attackCountError =
+    Compose.lensWithLens fieldError attackCount
+
+
+strength : Lens (Model b) (Field Int)
 strength =
-    Lens .strength (\b a -> { a | strength = b })
+    Compose.lensWithLens
+        (Lens .strength (\b a -> { a | strength = b }))
+        fields
 
 
-strengthId =
-    "strength"
+strengthValue : Lens (Model b) (Maybe Int)
+strengthValue =
+    Compose.lensWithLens fieldValue strength
 
 
-armorPenetration : Lens Fields (Field Int)
+strengthError : Lens (Model b) (Maybe String)
+strengthError =
+    Compose.lensWithLens fieldError strength
+
+
+armorPenetration : Lens (Model b) (Field Int)
 armorPenetration =
-    Lens .armorPenetration (\b a -> { a | armorPenetration = b })
+    Compose.lensWithLens
+        (Lens .armorPenetration (\b a -> { a | armorPenetration = b }))
+        fields
 
 
-armorPenetrationId =
-    "armor-penetration"
+armorPenetrationValue : Lens (Model b) (Maybe Int)
+armorPenetrationValue =
+    Compose.lensWithLens fieldValue armorPenetration
 
 
-toughness : Lens Fields (Field Int)
+armorPenetrationError : Lens (Model b) (Maybe String)
+armorPenetrationError =
+    Compose.lensWithLens fieldError armorPenetration
+
+
+toughness : Lens (Model b) (Field Int)
 toughness =
-    Lens .toughness (\b a -> { a | toughness = b })
+    Compose.lensWithLens
+        (Lens .toughness (\b a -> { a | toughness = b }))
+        fields
 
 
-toughnessId =
-    "toughness"
+toughnessValue : Lens (Model b) (Maybe Int)
+toughnessValue =
+    Compose.lensWithLens fieldValue toughness
 
 
-damage : Lens Fields (Field Int)
+toughnessError : Lens (Model b) (Maybe String)
+toughnessError =
+    Compose.lensWithLens fieldError toughness
+
+
+damage : Lens (Model b) (Field Int)
 damage =
-    Lens .damage (\b a -> { a | damage = b })
+    Compose.lensWithLens
+        (Lens .damage (\b a -> { a | damage = b }))
+        fields
 
 
-damageId =
-    "damage"
+damageValue : Lens (Model b) (Maybe Int)
+damageValue =
+    Compose.lensWithLens fieldValue damage
 
 
-save : Lens Fields (Field Int)
+damageError : Lens (Model b) (Maybe String)
+damageError =
+    Compose.lensWithLens fieldError damage
+
+
+save : Lens (Model b) (Field Int)
 save =
-    Lens .save (\b a -> { a | save = b })
+    Compose.lensWithLens
+        (Lens .save (\b a -> { a | save = b }))
+        fields
 
 
-saveId =
-    "save"
+saveValue : Lens (Model b) (Maybe Int)
+saveValue =
+    Compose.lensWithLens fieldValue save
+
+
+saveError : Lens (Model b) (Maybe String)
+saveError =
+    Compose.lensWithLens fieldError save
