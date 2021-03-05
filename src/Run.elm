@@ -146,6 +146,10 @@ woundPassValue setup =
         5
 
 
+run : Random.Seed -> Setup -> Int
+run seed setup =
+    run_ seed setup (Attack []) (Wound [])
+
 run_ : Random.Seed -> Setup -> Phase -> Phase -> Int
 run_ seed setup phase nextPhase =
     case ( phase, nextPhase ) of

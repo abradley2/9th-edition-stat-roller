@@ -3,11 +3,12 @@ module TextInput exposing (..)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
+import Json.Decode as D
 
 view : List (H.Attribute a) -> (String -> a) -> H.Html a
 view attrs onInput =
     H.input
-        ([ E.onInput onInput
+        ([ E.on "change" (D.map onInput <| D.at ["target", "value"] D.string)
          , A.spellcheck False
          , A.autocomplete False
          , A.class <|

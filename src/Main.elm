@@ -5,17 +5,20 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Dict exposing (Dict)
+import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
+import List
 import ModifierForm
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Damage, Modifier(..))
 import TextInput
-import Fields exposing (Fields)
+
+
 type Effect
     = EffCmd (Cmd Msg)
     | EffBatch (List Effect)
@@ -52,6 +55,7 @@ type Msg
     | ToughnessChanged String
     | SaveChanged String
     | WeaponSkillChanged String
+    | RunInput Run.Setup
 
 
 type alias Flags =
@@ -75,7 +79,7 @@ type alias Model =
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
     , fields : Fields
-    , result: Maybe Int
+    , result : Maybe Float
     }
 
 
@@ -130,6 +134,25 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
+        RunInput setup ->
+            let
+                results =
+                    model.flags.seeds
+                        |> List.map (flip Run.run setup)
+
+                count =
+                    List.length results
+
+                sum =
+                    List.foldr (+) 0 results
+
+                average =
+                    toFloat sum / toFloat count
+            in
+            ( { model | result = Just average }
+            , EffCmd Cmd.none
+            )
+
         WeaponSkillChanged value ->
             ( Fields.weaponSkillValue.set (String.toInt value) model
             , EffCmd Cmd.none
@@ -379,9 +402,17 @@ layout model =
         [ view model
         , case modelToSetup model of
             Just setup ->
-                H.button [] [ H.text "Run it" ]
+                H.button
+                    [ E.onClick <| RunInput setup ]
+                    [ H.text "Run it" ]
 
             Nothing ->
+                H.text ""
+        , case model.result of
+            Just r ->
+                H.h3 [] [ H.text <| String.fromFloat r ]
+
+            _ ->
                 H.text ""
         , modalView model
         ]
@@ -444,7 +475,7 @@ view model =
                     ]
                     [ H.text model.fields.attackCount.label ]
                 ]
-        , cardView (Just <| OpenModifierForm Wound) (model.fields.strength.id) <|
+        , cardView (Just <| OpenModifierForm Wound) model.fields.strength.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
