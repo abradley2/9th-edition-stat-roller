@@ -18,11 +18,6 @@ import Run exposing (Compare(..), Damage, Modifier(..))
 import TextInput
 import Monocle.Compose as Compose
 import Fields exposing (Fields)
-import Fields
-import Fields
-import Fields
-import Fields
-
 type Effect
     = EffCmd (Cmd Msg)
     | EffBatch (List Effect)
@@ -46,14 +41,13 @@ type ModifierCategory
 
 type Msg
     = NoOp
-    | ElementFocused (Result Dom.Error ())
     | OptionsButtonClicked String
     | CloseModalButtonClicked
     | OpenModifierForm ModifierCategory
     | SubmitModifierForm ModifierCategory Modifier
     | ModifierFormMsg ModifierForm.Msg
-    | NumberOfUnitsChanged String
-    | AttacksPerUnitChanged String
+    | UnitCountChanged String
+    | AttackCountChanged String
     | ArmorPenetrationChanged String
     | DamageChanged String
     | StrengthChanged String
@@ -88,25 +82,18 @@ type alias Model =
 
 modelToSetup : Model -> Maybe Run.Setup
 modelToSetup model =
-    let
-        unitCount =
-            Fields.unitCountValue.get
-
-        strength =
-            Fields.strength.get model |> .value
-    in
     map10
         Run.Setup
-        (Maybe.map2 (*) model.attackingUnits model.attacksPerUnit)
-        model.strength
+        (Maybe.map2 (*) (Fields.unitCountValue.get model) (Fields.attackCountValue.get model))
+        (Fields.strengthValue.get model)
         (Just model.woundModifier)
-        model.weaponSkill
+        (Fields.weaponSkillValue.get model)
         (Just model.weaponSkillModifier)
-        model.toughness
-        model.damage
-        model.armorPenetration
+        (Fields.toughnessValue.get model)
+        (Fields.damageValue.get model)
+        (Fields.armorPenetrationValue.get model)
         (Just model.saveModifier)
-        model.save
+        (Fields.saveValue.get model)
 
 
 init : D.Value -> ( Model, Effect )
@@ -144,58 +131,42 @@ update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
         WeaponSkillChanged value ->
-            ( { model
-                | weaponSkill = String.toInt value
-              }
+            ( Fields.weaponSkillValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
         ToughnessChanged value ->
-            ( { model
-                | toughness = String.toInt value
-              }
+            ( Fields.toughnessValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
         StrengthChanged value ->
-            ( { model
-                | strength = String.toInt value
-              }
+            ( Fields.strengthValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
         DamageChanged value ->
-            ( { model
-                | damage = String.toInt value
-              }
+            ( Fields.damageValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
         ArmorPenetrationChanged value ->
-            ( { model
-                | armorPenetration = String.toInt value
-              }
+            ( Fields.armorPenetrationValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
-        NumberOfUnitsChanged value ->
-            ( { model
-                | attackingUnits = String.toInt value
-              }
+        UnitCountChanged value ->
+            ( Fields.unitCountValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
         SaveChanged value ->
-            ( { model
-                | save = String.toInt value
-              }
+            ( Fields.saveValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
-        AttacksPerUnitChanged value ->
-            ( { model
-                | attacksPerUnit = String.toInt value
-              }
+        AttackCountChanged value ->
+            ( Fields.attackCountValue.set (String.toInt value) model
             , EffCmd Cmd.none
             )
 
@@ -285,9 +256,6 @@ update msg model =
               }
             , EffCmd modifierFormCmd
             )
-
-        ElementFocused _ ->
-            ( model, EffCmd Cmd.none )
 
         CloseModalButtonClicked ->
             ( { model
@@ -451,7 +419,7 @@ view model =
                     , A.placeholder "2"
                     , A.id "number-of-units"
                     ]
-                    NumberOfUnitsChanged
+                    UnitCountChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
@@ -468,7 +436,7 @@ view model =
                     , A.placeholder "2"
                     , A.id "attacks-per-weapon"
                     ]
-                    AttacksPerUnitChanged
+                    AttackCountChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
