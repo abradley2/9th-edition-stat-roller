@@ -4,7 +4,6 @@ import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
-import Browser.Dom as Dom
 import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as A
@@ -16,7 +15,6 @@ import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Damage, Modifier(..))
 import TextInput
-import Monocle.Compose as Compose
 import Fields exposing (Fields)
 type Effect
     = EffCmd (Cmd Msg)
@@ -77,6 +75,7 @@ type alias Model =
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
     , fields : Fields
+    , result: Maybe Int
     }
 
 
@@ -122,6 +121,7 @@ init flagsJson =
       , woundModifier = Nothing
       , saveModifier = Nothing
       , modifierCategory = Save
+      , result = Nothing
       }
     , EffCmd Cmd.none
     )
@@ -392,142 +392,142 @@ view model =
     H.div
         [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
         ]
-        [ cardView (Just <| OpenModifierForm WeaponSkill) "weapon-skill" <|
+        [ cardView (Just <| OpenModifierForm WeaponSkill) model.fields.weaponSkill.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "3+"
-                    , A.id "weapon-skill"
+                    , A.id model.fields.weaponSkill.id
                     ]
                     WeaponSkillChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "weapon-skill"
+                    , A.for model.fields.weaponSkill.id
                     ]
-                    [ H.text "Weapon/Ballistic Skill"
+                    [ H.text model.fields.weaponSkill.label
                     ]
                 ]
-        , cardView Nothing "number-of-units" <|
+        , cardView Nothing model.fields.unitCount.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "2"
-                    , A.id "number-of-units"
+                    , A.id model.fields.unitCount.id
                     ]
                     UnitCountChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "number-of-units"
+                    , A.for model.fields.unitCount.id
                     ]
-                    [ H.text "Number of Attacking Units" ]
+                    [ H.text model.fields.unitCount.label ]
                 ]
-        , cardView Nothing "attacks-per-weapon" <|
+        , cardView Nothing model.fields.attackCount.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "2"
-                    , A.id "attacks-per-weapon"
+                    , A.id model.fields.attackCount.id
                     ]
                     AttackCountChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "attacks-per-weapon"
+                    , A.for model.fields.attackCount.id
                     ]
-                    [ H.text "Attacks per Unit" ]
+                    [ H.text model.fields.attackCount.label ]
                 ]
-        , cardView (Just <| OpenModifierForm Wound) "strength" <|
+        , cardView (Just <| OpenModifierForm Wound) (model.fields.strength.id) <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "4"
-                    , A.id "strength"
+                    , A.id model.fields.strength.id
                     ]
                     StrengthChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "strength"
+                    , A.for model.fields.strength.id
                     ]
-                    [ H.text "Strength" ]
+                    [ H.text model.fields.strength.label ]
                 ]
-        , cardView Nothing "armor-penetration" <|
+        , cardView Nothing model.fields.armorPenetration.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "-2"
-                    , A.id "armor-penetration"
+                    , A.id model.fields.armorPenetration.id
                     ]
                     ArmorPenetrationChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "armor-penetration"
+                    , A.for model.fields.armorPenetration.id
                     ]
-                    [ H.text "Armor Penetration" ]
+                    [ H.text model.fields.armorPenetration.label ]
                 ]
-        , cardView Nothing "damage-dice" <|
+        , cardView Nothing model.fields.damage.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "D3"
-                    , A.id "damage-dice"
+                    , A.id model.fields.damage.id
                     ]
                     DamageChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "damage-dice"
+                    , A.for model.fields.damage.id
                     ]
-                    [ H.text "Damage" ]
+                    [ H.text model.fields.damage.label ]
                 ]
-        , cardView Nothing "toughness" <|
+        , cardView Nothing model.fields.toughness.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "4"
-                    , A.id "toughness"
+                    , A.id model.fields.toughness.id
                     ]
                     ToughnessChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "toughness"
+                    , A.for model.fields.toughness.id
                     ]
-                    [ H.text "Toughness" ]
+                    [ H.text model.fields.toughness.label ]
                 ]
-        , cardView (Just <| OpenModifierForm Save) "save" <|
+        , cardView (Just <| OpenModifierForm Save) model.fields.save.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
                     , A.placeholder "5+"
-                    , A.id "save"
+                    , A.id model.fields.save.id
                     ]
                     SaveChanged
                 , H.br [] []
                 , H.label
                     [ A.class "f7 fw5"
-                    , A.for "save"
+                    , A.for model.fields.save.id
                     ]
-                    [ H.text "Armor/Invulnerable Save" ]
+                    [ H.text model.fields.save.label ]
                 ]
         ]
 
