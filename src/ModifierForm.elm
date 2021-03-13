@@ -3,6 +3,7 @@ module ModifierForm exposing (..)
 import Accessibility exposing (fieldset)
 import Accessibility.Live exposing (liveAssertive, livePolite)
 import Accessibility.Widget exposing (disabled, required)
+import Button
 import DropdownMenu
 import Html as H
 import Html.Attributes as A
@@ -148,6 +149,7 @@ modelToModifier model =
         (\f x -> f x)
         compare
         result
+
 
 type Model
     = Model Model_
@@ -312,19 +314,22 @@ view model config =
                     [ A.class "white pa3"
                     , liveAssertive
                     ]
-                    [ case modelToModifier model_ of
-                        Just mod ->
-                            H.button
-                                [ A.class <|
-                                    "black-80 ba b--light-blue bg-light-blue f6 "
-                                        ++ " hover-bg-transparent hover-white grow "
-                                        ++ " pointer outline-0 br2 pa2 shadow-1 "
-                                , E.onClick <| config.onSubmit mod
-                                ]
-                                [ H.text "Apply Modifier" ]
+                    [ H.button
+                        ([]
+                            ++ (case modelToModifier model_ of
+                                    Just mod ->
+                                        [ disabled False
+                                        , A.class Button.baseButtonClass
+                                        , E.onClick <| config.onSubmit mod
+                                        ]
 
-                        Nothing ->
-                            H.text ""
+                                    Nothing ->
+                                        [ disabled True
+                                        , A.class Button.disabledButtonClass
+                                        ]
+                               )
+                        )
+                        [ H.text "Apply Modifier" ]
                     ]
                 ]
 
@@ -374,6 +379,9 @@ view_ model config nested =
                 |> H.map CompareMenuMsg
             , case model.compareCondition of
                 Just ( Always, _ ) ->
+                    H.text ""
+
+                Nothing ->
                     H.text ""
 
                 _ ->
