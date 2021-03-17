@@ -20,7 +20,7 @@ type alias Fields =
     , attackCount : Field Int
     , strength : Field Int
     , armorPenetration : Field Int
-    , damage : Field Int
+    , damage : Field Damage
     , toughness : Field Int
     , save : Field Int
     }
@@ -165,14 +165,14 @@ toughnessError =
     Compose.lensWithLens fieldError toughness
 
 
-damage : Lens (Model b) (Field Int)
+damage : Lens (Model b) (Field Damage)
 damage =
     Compose.lensWithLens
         (Lens .damage (\b a -> { a | damage = b }))
         fields
 
 
-damageValue : Lens (Model b) (Maybe Int)
+damageValue : Lens (Model b) (Maybe Damage)
 damageValue =
     Compose.lensWithLens fieldValue damage
 

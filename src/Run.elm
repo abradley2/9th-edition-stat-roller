@@ -108,7 +108,7 @@ type alias Setup =
     , weaponSkill : Int
     , weaponSkillModifier : Maybe Modifier
     , toughness : Int
-    , damage : Int
+    , damage : Damage
     , armorPenetration : Maybe Int
     , saveModifier : Maybe Modifier
     , save : Int
@@ -148,11 +148,11 @@ woundPassValue setup =
 
 run : Random.Seed -> Setup -> Int
 run seed setup =
-    run_ seed setup (Attack []) (Wound [])
+    run_ seed setup (Attack []) (Wound []) 0
 
 
-run_ : Random.Seed -> Setup -> Phase -> Phase -> Int
-run_ seed setup phase nextPhase =
+run_ : Random.Seed -> Setup -> Phase -> Phase -> Int -> Int
+run_ seed setup phase nextPhase currentDamage =
     case ( phase, nextPhase ) of
         ( Attack dice, Wound woundDice ) ->
             if setup.attacks > 0 then
@@ -161,11 +161,12 @@ run_ seed setup phase nextPhase =
                     { setup | attacks = setup.attacks - 1 }
                     (Attack <| Die 6 setup.weaponSkill setup.weaponSkillModifier :: dice)
                     nextPhase
+                    0
 
             else
                 case dice of
                     [] ->
-                        run_ seed setup nextPhase (Save [])
+                        run_ seed setup nextPhase (Save []) 0
 
                     currentRoll :: nextRolls ->
                         let
@@ -189,6 +190,7 @@ run_ seed setup phase nextPhase =
                             setup
                             (Attack nextRolls)
                             (Wound nextWounds)
+                            0
 
         ( Wound dice, Save saveDice ) ->
             case dice of
@@ -198,6 +200,7 @@ run_ seed setup phase nextPhase =
                         setup
                         (Save saveDice)
                         (Damage [])
+                        0
 
                 currentRoll :: nextRolls ->
                     let
@@ -229,11 +232,12 @@ run_ seed setup phase nextPhase =
                         setup
                         (Wound nextRolls)
                         (Save nextSaves)
+                        0
 
         ( Save dice, Damage damageDice ) ->
             case dice of
                 [] ->
-                    run_ seed setup (Damage damageDice) (Resolve 0)
+                    run_ seed setup (Damage damageDice) (Resolve currentDamage) currentDamage
 
                 currentRoll :: nextRolls ->
                     let
@@ -246,18 +250,23 @@ run_ seed setup phase nextPhase =
                                         ]
                                     )
 
-                        nextDamageDice =
+                        (nextDamageDice, nextDamage) =
                             if rollValue < currentRoll.passValue then
-                                Die setup.damage 0 nextMod :: damageDice
+                                case setup.damage of
+                                    Fixed val ->
+                                       (damageDice, currentDamage + val)
 
+                                    Roll val ->
+                                        (Die val 0 Nothing :: damageDice, currentDamage)
                             else
-                                damageDice
+                                (damageDice, currentDamage)
                     in
                     run_
                         nextSeed
                         setup
                         (Save nextRolls)
                         (Damage nextDamageDice)
+                        nextDamage
 
         ( Damage dice, Resolve woundCount ) ->
             case dice of
@@ -267,6 +276,7 @@ run_ seed setup phase nextPhase =
                         setup
                         (Resolve woundCount)
                         (Resolve woundCount)
+                        0
 
                 currentRoll :: nextRolls ->
                     let
@@ -279,6 +289,7 @@ run_ seed setup phase nextPhase =
                         setup
                         (Damage nextRolls)
                         (Resolve <| woundCount + rollVal)
+                        0
 
         ( Resolve result, _ ) ->
             result
