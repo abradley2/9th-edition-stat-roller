@@ -4,6 +4,7 @@ import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
+import Button
 import Dict exposing (Dict)
 import Fields exposing (Fields)
 import Html as H
@@ -399,20 +400,30 @@ layout model =
     H.div
         []
         [ view model
-        , case modelToSetup model of
-            Just setup ->
-                H.button
-                    [ E.onClick <| RunInput setup ]
-                    [ H.text "Run it" ]
+        , H.div
+            [ A.class "flex justify-center flex-column items-center white-70 avenir"
+            ]
+            [ H.button
+                ([]
+                    ++ (case modelToSetup model of
+                            Just setup ->
+                                [ E.onClick <| RunInput setup
+                                , A.class Button.baseButtonClass
+                                ]
 
-            Nothing ->
-                H.text ""
-        , case model.result of
-            Just r ->
-                H.h3 [] [ H.text <| String.fromFloat r ]
+                            Nothing ->
+                                [ A.class Button.disabledButtonClass
+                                ]
+                       )
+                )
+                [ H.text "Run Scenario" ]
+            , case model.result of
+                Just r ->
+                    H.h3 [] [ H.text <| String.fromFloat r ++ " unsaved wounds" ]
 
-            _ ->
-                H.text ""
+                _ ->
+                    H.text ""
+            ]
         , modalView model
         ]
 
