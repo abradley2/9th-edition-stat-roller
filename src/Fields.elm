@@ -3,6 +3,7 @@ module Fields exposing (..)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (..)
 import Monocle.Optional as Optional exposing (Optional)
+import Run exposing (Damage(..))
 
 
 type alias Field a =
