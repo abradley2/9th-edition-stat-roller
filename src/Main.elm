@@ -5,7 +5,6 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Button
-import Dict exposing (Dict)
 import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A

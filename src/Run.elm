@@ -150,6 +150,7 @@ run : Random.Seed -> Setup -> Int
 run seed setup =
     run_ seed setup (Attack []) (Wound [])
 
+
 run_ : Random.Seed -> Setup -> Phase -> Phase -> Int
 run_ seed setup phase nextPhase =
     case ( phase, nextPhase ) of
@@ -238,7 +239,12 @@ run_ seed setup phase nextPhase =
                     let
                         ( nextSeed, rollValue, nextMod ) =
                             rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
+                                |> applyModifier currentRoll
+                                    (Batch
+                                        [ MaybeMod currentRoll.modifier
+                                        , MaybeMod setup.saveModifier
+                                        ]
+                                    )
 
                         nextDamageDice =
                             if rollValue < currentRoll.passValue then
