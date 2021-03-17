@@ -2,6 +2,7 @@ module Fields exposing (..)
 
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (..)
+import Monocle.Optional as Optional exposing (Optional)
 
 
 type alias Field a =
@@ -39,6 +40,11 @@ init =
     , toughness = Field "toughness" "Toughness" Nothing Nothing
     , save = Field "save" "Save" Nothing Nothing
     }
+
+
+initArmorPenetration : Int -> Field Int
+initArmorPenetration value =
+    Field "armor-penetration" "Armor Penetration" (Just value) Nothing
 
 
 fields : Lens (Model b) Fields

@@ -109,7 +109,7 @@ type alias Setup =
     , weaponSkillModifier : Maybe Modifier
     , toughness : Int
     , damage : Int
-    , armorPenetration : Int
+    , armorPenetration : Maybe Int
     , saveModifier : Maybe Modifier
     , save : Int
     }
@@ -212,7 +212,7 @@ run_ seed setup phase nextPhase =
                         modWithAp =
                             Batch
                                 [ MaybeMod nextMod
-                                , SubtractValue setup.armorPenetration
+                                , SubtractValue (setup.armorPenetration |> Maybe.withDefault 0)
                                 ]
                                 |> Just
 

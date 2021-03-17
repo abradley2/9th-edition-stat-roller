@@ -65,8 +65,7 @@ type alias Flags =
 
 
 map10 f10 a b c d e f g h i j =
-    Maybe.map5 f10 a b c d e
-        |> Maybe.andThen (\f5 -> Maybe.map5 f5 f g h i j)
+    Maybe.map5 f10 a b c d e |> Maybe.andThen (\f5 -> Maybe.map5 f5 f g h i j)
 
 
 type alias Model =
@@ -94,7 +93,7 @@ modelToSetup model =
         (Just model.weaponSkillModifier)
         (Fields.toughnessValue.get model)
         (Fields.damageValue.get model)
-        (Fields.armorPenetrationValue.get model)
+        (Just <| Fields.armorPenetrationValue.get model)
         (Just model.saveModifier)
         (Fields.saveValue.get model)
 
