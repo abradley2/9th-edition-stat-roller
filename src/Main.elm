@@ -307,7 +307,7 @@ cardView optionsHandler optionId body =
     H.div
         [ A.class "pa2 w-50 w-33-ns w-33-m w-20-l relative" ]
         [ H.div
-            [ A.class "shadow-1 bg-black-40 ph3 pv2 br3 flex justify-center"
+            [ A.class "shadow-1 bg-black-40 ph3 pt2 pb3 br3 flex justify-center"
             ]
             [ body ]
         , case optionsHandler of
@@ -434,14 +434,19 @@ layout model =
 
 clearModifierButton : Msg -> H.Html Msg
 clearModifierButton onClick =
-    H.button
-        [ E.onClick onClick
-        , A.class Button.textButtonClass
+    H.div
+        [ A.class "absolute bottom-0 left-0 right-0 flex justify-center"
         ]
-        [ H.text "Clear Applied Modifier"
-        , H.i
-            [ A.class "pl2 fas fa-cogs"]
-            []
+        [ H.button
+            [ E.onClick onClick
+            , A.class Button.textButtonClass
+            , A.class "nt4"
+            ]
+            [ H.text "Clear Applied Modifier"
+            , H.i
+                [ A.class "pl2 fas fa-cogs" ]
+                []
+            ]
         ]
 
 

@@ -10,7 +10,7 @@ baseButtonClass =
 
 textButtonClass : String
 textButtonClass =
-    "light-blue f7 bn bg-transparent pointer pa2 "
+    "light-blue f7 bn bg-transparent pointer "
       ++ " underline"
 
 
