@@ -108,14 +108,14 @@ type alias Setup =
     , weaponSkill : Int
     , weaponSkillModifier : Maybe Modifier
     , toughness : Int
-    , damage : Damage
+    , damage : FixedOrRoll
     , armorPenetration : Maybe Int
     , saveModifier : Maybe Modifier
     , save : Int
     }
 
 
-type Damage
+type FixedOrRoll
     = Fixed Int
     | Roll Int
 

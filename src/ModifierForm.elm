@@ -387,9 +387,9 @@ view_ model config nested =
                 _ ->
                     TextInput.view
                         [ A.class <| "w3"
-                        , A.value (model.passValue |> Maybe.map String.fromInt |> Maybe.withDefault "")
                         , A.id (id ++ "--compare-condition-value")
                         ]
+                        (model.passValue |> Maybe.map String.fromInt)
                         PassValueChanged
                         |> withLabel (id ++ "--compare-condition-value") "Value"
             ]
@@ -420,18 +420,18 @@ view_ model config nested =
                 Just ( ValueMod _, _ ) ->
                     TextInput.view
                         [ A.class "w3"
-                        , A.value (model.valueMod |> Maybe.map String.fromInt |> Maybe.withDefault "")
                         , A.id (id ++ "--value-mod")
                         ]
+                        (model.valueMod |> Maybe.map String.fromInt )
                         ValueModChanged
                         |> withLabel (id ++ "--value-mod") "Value"
 
                 Just ( RerollNew, _ ) ->
                     TextInput.view
                         [ A.class "w3"
-                        , A.value (model.newPassValue |> Maybe.map String.fromInt |> Maybe.withDefault "")
                         , A.id (id ++ "--new-pass-value")
                         ]
+                        (model.newPassValue |> Maybe.map String.fromInt)
                         NewPassValueChanged
                         |> withLabel (id ++ "--new-pass-value") "Pass value"
 

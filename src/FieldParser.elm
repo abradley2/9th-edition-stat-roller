@@ -1,22 +1,55 @@
 module FieldParser exposing (..)
 
-import Parser exposing (Parser, (|.), (|=), succeed, symbol, float, spaces, oneOf, map, int, DeadEnd, run)
-import Run exposing (Damage(..))
-import Parser
+import Basics.Extra exposing (flip)
+import Parser exposing ((|.), (|=), DeadEnd, Parser, float, int, map, oneOf, run, spaces, succeed, symbol)
+import Run exposing (FixedOrRoll(..))
 
-rollParser : Parser Int
+
+rollParser : Parser FixedOrRoll
 rollParser =
-    Parser.succeed always
-    |. symbol "D"
-    |= int
+    Parser.succeed Roll
+        |. symbol "D"
+        |= int
 
-damageParser : Parser Damage
-damageParser = oneOf
-    [ map Roll rollParser
-    , map Fixed int
-    ]
 
-parseDamage : String -> Maybe Damage
-parseDamage =
-    run damageParser
-        |> Result.toMaybe
+fixedOrRollParser : Parser FixedOrRoll
+fixedOrRollParser =
+    oneOf
+        [ rollParser
+        , map Fixed int
+        ]
+
+
+parseFixedOrRoll : String -> Maybe FixedOrRoll
+parseFixedOrRoll =
+    run fixedOrRollParser >> Result.toMaybe
+
+
+formatFixedOrRoll : FixedOrRoll -> String
+formatFixedOrRoll damage =
+    case damage of
+        Fixed val ->
+            String.fromInt val
+
+        Roll val ->
+            "D" ++ String.fromInt val
+
+
+passValueParser : Parser Int
+passValueParser =
+    oneOf
+        [ int
+        , succeed (\v -> v)
+            |= int
+            |. symbol "+"
+        ]
+
+
+parsePassValue : String -> Maybe Int
+parsePassValue =
+    run passValueParser >> Result.toMaybe
+
+
+formatPassValue : Int -> String
+formatPassValue =
+    String.fromInt >> flip (++) "+"

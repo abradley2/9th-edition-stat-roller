@@ -5,6 +5,7 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Button
+import FieldParser exposing (parseFixedOrRoll, formatFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A
@@ -15,8 +16,12 @@ import List
 import ModifierForm
 import Random exposing (Seed)
 import Result.Extra as ResultX
-import Run exposing (Compare(..), Damage, Modifier(..))
+import Run exposing (Compare(..), Modifier(..))
 import TextInput
+import Fields
+import Fields
+import Fields
+import FieldParser exposing (formatPassValue)
 
 
 type Effect
@@ -42,7 +47,6 @@ type ModifierCategory
 
 type Msg
     = NoOp
-    | OptionsButtonClicked String
     | CloseModalButtonClicked
     | OpenModifierForm ModifierCategory
     | SubmitModifierForm ModifierCategory Modifier
@@ -153,12 +157,12 @@ update msg model =
             )
 
         WeaponSkillChanged value ->
-            ( Fields.weaponSkillValue.set (String.toInt value) model
+            ( Fields.weaponSkillValue.set (parsePassValue value) model
             , EffCmd Cmd.none
             )
 
         ToughnessChanged value ->
-            ( Fields.toughnessValue.set (String.toInt value) model
+            ( Fields.toughnessValue.set (parsePassValue value) model
             , EffCmd Cmd.none
             )
 
@@ -168,7 +172,7 @@ update msg model =
             )
 
         DamageChanged value ->
-            ( Fields.damageValue.set (String.toInt value) model
+            ( Fields.damageValue.set (parseFixedOrRoll value) model
             , EffCmd Cmd.none
             )
 
@@ -183,7 +187,7 @@ update msg model =
             )
 
         SaveChanged value ->
-            ( Fields.saveValue.set (String.toInt value) model
+            ( Fields.saveValue.set (parsePassValue value) model
             , EffCmd Cmd.none
             )
 
@@ -282,13 +286,6 @@ update msg model =
         CloseModalButtonClicked ->
             ( { model
                 | modalOpen = False
-              }
-            , EffCmd Cmd.none
-            )
-
-        OptionsButtonClicked optionId ->
-            ( { model
-                | modalOpen = True
               }
             , EffCmd Cmd.none
             )
@@ -441,6 +438,7 @@ view model =
                     , A.placeholder "3+"
                     , A.id model.fields.weaponSkill.id
                     ]
+                    (Fields.weaponSkillValue.get model |> Maybe.map formatPassValue)
                     WeaponSkillChanged
                 , H.br [] []
                 , H.label
@@ -459,6 +457,7 @@ view model =
                     , A.placeholder "2"
                     , A.id model.fields.unitCount.id
                     ]
+                    (Fields.unitCountValue.get model |> Maybe.map String.fromInt)
                     UnitCountChanged
                 , H.br [] []
                 , H.label
@@ -476,6 +475,7 @@ view model =
                     , A.placeholder "2"
                     , A.id model.fields.attackCount.id
                     ]
+                    (Fields.attackCountValue.get model |> Maybe.map String.fromInt)
                     AttackCountChanged
                 , H.br [] []
                 , H.label
@@ -493,6 +493,7 @@ view model =
                     , A.placeholder "4"
                     , A.id model.fields.strength.id
                     ]
+                    (Fields.strengthValue.get model |> Maybe.map String.fromInt)
                     StrengthChanged
                 , H.br [] []
                 , H.label
@@ -510,6 +511,7 @@ view model =
                     , A.placeholder "-2"
                     , A.id model.fields.armorPenetration.id
                     ]
+                    (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
                     ArmorPenetrationChanged
                 , H.br [] []
                 , H.label
@@ -527,6 +529,7 @@ view model =
                     , A.placeholder "D3"
                     , A.id model.fields.damage.id
                     ]
+                    (Fields.damageValue.get model |> Maybe.map formatFixedOrRoll)
                     DamageChanged
                 , H.br [] []
                 , H.label
@@ -544,6 +547,7 @@ view model =
                     , A.placeholder "4"
                     , A.id model.fields.toughness.id
                     ]
+                    (Fields.toughnessValue.get model |> Maybe.map String.fromInt)
                     ToughnessChanged
                 , H.br [] []
                 , H.label
@@ -561,6 +565,7 @@ view model =
                     , A.placeholder "5+"
                     , A.id model.fields.save.id
                     ]
+                    (Fields.saveValue.get model |> Maybe.map formatPassValue)
                     SaveChanged
                 , H.br [] []
                 , H.label

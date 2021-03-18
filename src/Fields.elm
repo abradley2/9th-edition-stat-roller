@@ -3,7 +3,7 @@ module Fields exposing (..)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (..)
 import Monocle.Optional as Optional exposing (Optional)
-import Run exposing (Damage(..))
+import Run exposing (FixedOrRoll(..))
 
 
 type alias Field a =
@@ -20,7 +20,7 @@ type alias Fields =
     , attackCount : Field Int
     , strength : Field Int
     , armorPenetration : Field Int
-    , damage : Field Damage
+    , damage : Field FixedOrRoll
     , toughness : Field Int
     , save : Field Int
     }
@@ -165,14 +165,14 @@ toughnessError =
     Compose.lensWithLens fieldError toughness
 
 
-damage : Lens (Model b) (Field Damage)
+damage : Lens (Model b) (Field FixedOrRoll)
 damage =
     Compose.lensWithLens
         (Lens .damage (\b a -> { a | damage = b }))
         fields
 
 
-damageValue : Lens (Model b) (Maybe Damage)
+damageValue : Lens (Model b) (Maybe FixedOrRoll)
 damageValue =
     Compose.lensWithLens fieldValue damage
 
