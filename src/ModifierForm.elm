@@ -5,6 +5,7 @@ import Accessibility.Live exposing (liveAssertive, livePolite)
 import Accessibility.Widget exposing (disabled, required)
 import Button
 import DropdownMenu
+import FieldParser exposing (formatPassValue, parsePassValue)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
@@ -89,7 +90,7 @@ modifierToModel modifier =
                     , resultModifier =
                         Just
                             ( resultType
-                            , resultTypeLabel resultType
+                            , resultTypeLabel Nothing resultType
                             )
                 }
 
@@ -212,7 +213,7 @@ update_ msg model =
             )
 
         NewPassValueChanged newPassValue ->
-            ( { model | newPassValue = String.toInt newPassValue }
+            ( { model | newPassValue = parsePassValue newPassValue }
             , EffCmd Cmd.none
             )
 
@@ -302,13 +303,13 @@ type alias Config a =
     }
 
 
-view : Model -> Config a -> H.Html a
-view model config =
+view : Maybe String -> Model -> Config a -> H.Html a
+view nextPhase model config =
     case model of
         Model model_ ->
             H.div
                 []
-                [ view_ model_ config False
+                [ view_ nextPhase model_ config False
                     |> H.map config.mapMsg
                 , H.div
                     [ A.class "white pa3"
@@ -348,8 +349,8 @@ withLabel fieldId label field =
         ]
 
 
-view_ : Model_ -> Config a -> Bool -> H.Html Msg
-view_ model config nested =
+view_ : Maybe String -> Model_ -> Config a -> Bool -> H.Html Msg
+view_ nextPhase model config nested =
     let
         id =
             if nested then
@@ -407,13 +408,14 @@ view_ model config nested =
                     , ValueMod Add
                     , ValueMod Subtract
                     ]
-                        ++ (if nested then
-                                []
+                        ++ (case ( nested, nextPhase ) of
+                                ( False, Just _ ) ->
+                                    [ InfluenceNext ]
 
-                            else
-                                [ InfluenceNext ]
+                                _ ->
+                                    []
                            )
-                        |> List.map (\v -> ( v, resultTypeLabel v ))
+                        |> List.map (\v -> ( v, resultTypeLabel nextPhase v ))
                 }
                 |> H.map ResultMenuMsg
             , case model.resultModifier of
@@ -422,7 +424,7 @@ view_ model config nested =
                         [ A.class "w3"
                         , A.id (id ++ "--value-mod")
                         ]
-                        (model.valueMod |> Maybe.map String.fromInt )
+                        (model.valueMod |> Maybe.map String.fromInt)
                         ValueModChanged
                         |> withLabel (id ++ "--value-mod") "Value"
 
@@ -431,7 +433,7 @@ view_ model config nested =
                         [ A.class "w3"
                         , A.id (id ++ "--new-pass-value")
                         ]
-                        (model.newPassValue |> Maybe.map String.fromInt)
+                        (model.newPassValue |> Maybe.map formatPassValue)
                         NewPassValueChanged
                         |> withLabel (id ++ "--new-pass-value") "Pass value"
 
@@ -440,7 +442,7 @@ view_ model config nested =
             ]
         , case model.nextModifierForm of
             Just (Model model_) ->
-                H.div [] [ view_ model_ config True ]
+                H.div [] [ view_ nextPhase model_ config True ]
                     |> H.map NextModifierMsg
 
             Nothing ->
@@ -464,8 +466,8 @@ compareLabel compare =
             "Greater than or equal to"
 
 
-resultTypeLabel : ResultType -> String
-resultTypeLabel resultType =
+resultTypeLabel : Maybe String -> ResultType -> String
+resultTypeLabel nextPhase resultType =
     case resultType of
         Reroll ->
             "Re-roll dice"
@@ -480,4 +482,4 @@ resultTypeLabel resultType =
             "Modify roll: subtract"
 
         InfluenceNext ->
-            "Apply modifier to next phase"
+            "Apply modifier to " ++ Maybe.withDefault "" nextPhase

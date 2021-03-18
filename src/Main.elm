@@ -382,7 +382,18 @@ modalView model =
                 ]
                 []
             , if isOpen then
-                ModifierForm.view model.modifierForm
+                ModifierForm.view
+                    (case model.modifierCategory of
+                        WeaponSkill ->
+                            Just "wound"
+
+                        Wound ->
+                            Just "save"
+
+                        _ ->
+                            Nothing
+                    )
+                    model.modifierForm
                     { id = "my-form"
                     , mapMsg = ModifierFormMsg
                     , onSubmit = SubmitModifierForm model.modifierCategory
