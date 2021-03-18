@@ -83,7 +83,7 @@ applyModifier die modifier ( currentVal, seed ) =
 
 
                 -- TODO: I hate this
-                modVal = Maybe.map (\diff -> nextVal + abs (diff - die.passValue))  mNewVal |> Maybe.withDefault nextVal
+                modVal = Maybe.map (\diff -> nextVal - (diff - die.passValue))  mNewVal |> Maybe.withDefault nextVal
             in
             ( nextSeed, modVal, Nothing )
 
