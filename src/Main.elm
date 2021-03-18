@@ -5,7 +5,7 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Button
-import FieldParser exposing (parseFixedOrRoll, formatFixedOrRoll, parsePassValue)
+import FieldParser exposing (formatFixedOrRoll, formatPassValue, parseFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A
@@ -18,10 +18,6 @@ import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Modifier(..))
 import TextInput
-import Fields
-import Fields
-import Fields
-import FieldParser exposing (formatPassValue)
 
 
 type Effect
@@ -50,6 +46,7 @@ type Msg
     | CloseModalButtonClicked
     | OpenModifierForm ModifierCategory
     | SubmitModifierForm ModifierCategory Modifier
+    | ClearModifier ModifierCategory
     | ModifierFormMsg ModifierForm.Msg
     | UnitCountChanged String
     | AttackCountChanged String
@@ -137,6 +134,17 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Effect )
 update msg model =
     case msg of
+        ClearModifier category ->
+            case category of
+                WeaponSkill ->
+                    ( { model | weaponSkillModifier = Nothing }, EffCmd Cmd.none )
+
+                Wound ->
+                    ( { model | woundModifier = Nothing }, EffCmd Cmd.none )
+
+                Save ->
+                    ( { model | saveModifier = Nothing }, EffCmd Cmd.none )
+
         RunInput setup ->
             let
                 results =
@@ -424,6 +432,15 @@ layout model =
         ]
 
 
+clearModifierButton : Msg -> H.Html Msg
+clearModifierButton onClick =
+    H.button
+        [ E.onClick onClick
+        ]
+        [ H.text "clear applied modifier"
+        ]
+
+
 view : Model -> H.Html Msg
 view model =
     H.div
@@ -447,6 +464,12 @@ view model =
                     ]
                     [ H.text model.fields.weaponSkill.label
                     ]
+                , case model.weaponSkillModifier of
+                    Just _ ->
+                        clearModifierButton (ClearModifier WeaponSkill)
+
+                    Nothing ->
+                        H.text ""
                 ]
         , cardView Nothing model.fields.unitCount.id <|
             H.div
@@ -501,6 +524,12 @@ view model =
                     , A.for model.fields.strength.id
                     ]
                     [ H.text model.fields.strength.label ]
+                , case model.woundModifier of
+                    Just _ ->
+                        clearModifierButton (ClearModifier Wound)
+
+                    Nothing ->
+                        H.text ""
                 ]
         , cardView Nothing model.fields.armorPenetration.id <|
             H.div
@@ -573,6 +602,12 @@ view model =
                     , A.for model.fields.save.id
                     ]
                     [ H.text model.fields.save.label ]
+                , case model.saveModifier of
+                    Just _ ->
+                        clearModifierButton (ClearModifier Save)
+
+                    _ ->
+                        H.text ""
                 ]
         ]
 
