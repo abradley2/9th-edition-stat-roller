@@ -80,8 +80,12 @@ applyModifier die modifier ( currentVal, seed ) =
 
                 ( nextVal, nextSeed ) =
                     rollDie seed nextDie
+
+
+                -- TODO: I hate this
+                modVal = Maybe.map (\diff -> nextVal + abs (diff - die.passValue))  mNewVal |> Maybe.withDefault nextVal
             in
-            ( nextSeed, nextVal, Nothing )
+            ( nextSeed, modVal, Nothing )
 
         InfluenceNext nextMod ->
             ( seed, currentVal, Just nextMod )
