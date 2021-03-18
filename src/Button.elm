@@ -8,6 +8,12 @@ baseButtonClass =
         ++ " pointer outline-0 br2 pa2 shadow-1 "
 
 
+textButtonClass : String
+textButtonClass =
+    "light-blue f7 bn bg-transparent pointer pa2 "
+      ++ " underline"
+
+
 disabledButtonClass : String
 disabledButtonClass =
         "white-40 ba b--white-50 b--dashed bg-transparent f6 "

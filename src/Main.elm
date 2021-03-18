@@ -436,8 +436,12 @@ clearModifierButton : Msg -> H.Html Msg
 clearModifierButton onClick =
     H.button
         [ E.onClick onClick
+        , A.class Button.textButtonClass
         ]
-        [ H.text "clear applied modifier"
+        [ H.text "Clear Applied Modifier"
+        , H.i
+            [ A.class "pl2 fas fa-cogs"]
+            []
         ]
 
 
@@ -457,9 +461,8 @@ view model =
                     ]
                     (Fields.weaponSkillValue.get model |> Maybe.map formatPassValue)
                     WeaponSkillChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.weaponSkill.id
                     ]
                     [ H.text model.fields.weaponSkill.label
@@ -482,9 +485,8 @@ view model =
                     ]
                     (Fields.unitCountValue.get model |> Maybe.map String.fromInt)
                     UnitCountChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.unitCount.id
                     ]
                     [ H.text model.fields.unitCount.label ]
@@ -500,9 +502,8 @@ view model =
                     ]
                     (Fields.attackCountValue.get model |> Maybe.map String.fromInt)
                     AttackCountChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.attackCount.id
                     ]
                     [ H.text model.fields.attackCount.label ]
@@ -518,9 +519,8 @@ view model =
                     ]
                     (Fields.strengthValue.get model |> Maybe.map String.fromInt)
                     StrengthChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.strength.id
                     ]
                     [ H.text model.fields.strength.label ]
@@ -542,9 +542,8 @@ view model =
                     ]
                     (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
                     ArmorPenetrationChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.armorPenetration.id
                     ]
                     [ H.text model.fields.armorPenetration.label ]
@@ -560,9 +559,8 @@ view model =
                     ]
                     (Fields.damageValue.get model |> Maybe.map formatFixedOrRoll)
                     DamageChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.damage.id
                     ]
                     [ H.text model.fields.damage.label ]
@@ -578,9 +576,8 @@ view model =
                     ]
                     (Fields.toughnessValue.get model |> Maybe.map String.fromInt)
                     ToughnessChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.toughness.id
                     ]
                     [ H.text model.fields.toughness.label ]
@@ -596,9 +593,8 @@ view model =
                     ]
                     (Fields.saveValue.get model |> Maybe.map formatPassValue)
                     SaveChanged
-                , H.br [] []
                 , H.label
-                    [ A.class "f7 fw5"
+                    [ A.class "f7 fw5 pt2"
                     , A.for model.fields.save.id
                     ]
                     [ H.text model.fields.save.label ]
