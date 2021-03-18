@@ -18,6 +18,8 @@ import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Modifier(..))
 import TextInput
+import FieldParser exposing (parseArmorPenetration)
+import FieldParser exposing (formatArmorPenetration)
 
 
 type Effect
@@ -185,7 +187,7 @@ update msg model =
             )
 
         ArmorPenetrationChanged value ->
-            ( Fields.armorPenetrationValue.set (String.toInt value) model
+            ( Fields.armorPenetrationValue.set (parseArmorPenetration value) model
             , EffCmd Cmd.none
             )
 
@@ -556,7 +558,7 @@ view model =
                     , A.placeholder "-2"
                     , A.id model.fields.armorPenetration.id
                     ]
-                    (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
+                    (Fields.armorPenetrationValue.get model |> Maybe.map formatArmorPenetration)
                     ArmorPenetrationChanged
                 , H.label
                     [ A.class "f7 fw5 pt2"

@@ -53,3 +53,23 @@ parsePassValue =
 formatPassValue : Int -> String
 formatPassValue =
     String.fromInt >> flip (++) "+"
+
+
+armorPenetrationParser : Parser Int
+armorPenetrationParser =
+    oneOf
+        [ int
+        , succeed (\v -> v)
+            |. symbol "-"
+            |= int
+        ]
+
+
+parseArmorPenetration : String -> Maybe Int
+parseArmorPenetration =
+    run armorPenetrationParser >> Result.toMaybe
+
+
+formatArmorPenetration : Int -> String
+formatArmorPenetration =
+    String.fromInt >> (++) "-"
