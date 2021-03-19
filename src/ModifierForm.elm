@@ -13,6 +13,43 @@ import Run exposing (Compare(..), Modifier(..))
 import TextInput
 
 
+formatModifier : String -> Modifier -> String
+formatModifier nextPhase mod =
+    case mod of
+        Run.AddValue val ->
+            "Add " ++ String.fromInt val
+
+        Run.SubtractValue val ->
+            "Subtract " ++ String.fromInt val
+
+        Run.Reroll mVal ->
+            case mVal of
+                Just val ->
+                    "Roll for " ++ formatPassValue val
+
+                Nothing ->
+                    "Re-roll"
+
+        Run.Compare cmp val nextMod ->
+            case cmp of
+                Always ->
+                    "Always " ++ formatModifier nextPhase nextMod
+
+                Eq ->
+                    formatModifier nextPhase nextMod ++ " when Equal to " ++ String.fromInt val
+
+                Lte ->
+                    formatModifier nextPhase nextMod ++ " when Less Than or Equal to " ++ String.fromInt val
+
+                Gte ->
+                    formatModifier nextPhase nextMod ++ " when Greater Than or Equal to " ++ String.fromInt val
+
+        Run.InfluenceNext nextMod ->
+            formatModifier "" nextMod ++ " on " ++ nextPhase
+
+        _ -> ""
+
+
 type Effect
     = EffCmd (Cmd Msg)
     | EffBatch (List Effect)

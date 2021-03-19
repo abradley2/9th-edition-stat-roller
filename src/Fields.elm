@@ -33,7 +33,7 @@ type alias Model a =
 init : Fields
 init =
     { weaponSkill = Field "weapon-skill" "Weapon/Ballistic Skill" Nothing Nothing
-    , unitCount = Field "unit-count" "Number of Attacking Units" Nothing Nothing
+    , unitCount = Field "unit-count" "Attacking Units" Nothing Nothing
     , attackCount = Field "attack count" "Attacks per Unit" Nothing Nothing
     , strength = Field "strength" "Attack Strength" Nothing Nothing
     , armorPenetration = Field "armor-penetration" "Armor Penetration" Nothing Nothing

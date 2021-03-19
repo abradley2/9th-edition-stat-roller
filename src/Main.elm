@@ -5,7 +5,7 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Button
-import FieldParser exposing (formatFixedOrRoll, formatPassValue, parseFixedOrRoll, parsePassValue)
+import FieldParser exposing (formatArmorPenetration, formatFixedOrRoll, formatPassValue, parseArmorPenetration, parseFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A
@@ -13,13 +13,12 @@ import Html.Events as E
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import List
-import ModifierForm
+import Maybe.Extra exposing (isJust)
+import ModifierForm exposing (formatModifier)
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Modifier(..))
 import TextInput
-import FieldParser exposing (parseArmorPenetration)
-import FieldParser exposing (formatArmorPenetration)
 
 
 type Effect
@@ -417,6 +416,7 @@ layout model =
     H.div
         []
         [ view model
+        , modifierListView model
         , H.div
             [ A.class "flex justify-center flex-column items-center white-70 avenir"
             ]
@@ -463,6 +463,38 @@ clearModifierButton onClick =
         ]
 
 
+modifierListView : Model -> H.Html Msg
+modifierListView model =
+    let
+        modDesc =
+            [ Maybe.map (formatModifier "Wound" >> ((++) "On Roll to Hit: ") >> H.text) model.weaponSkillModifier
+            , Maybe.map (formatModifier "Save" >> (++) "On Roll to Wound: " >> H.text) model.woundModifier
+            , Maybe.map (formatModifier "" >> (++) "On Roll to Save: " >> H.text) model.saveModifier
+            ]
+
+        modCount =
+            List.filter isJust modDesc |> List.length
+    in
+    H.div
+        [ A.class "avenir white-70 tc pb2"
+        ]
+        [ H.div
+            [ A.class "tc" ]
+            [ H.text "Modifiers Applied:" ]
+        , H.div
+            [ A.class "tc pv1 f7 white lh-copy" ]
+            [  if modCount == 0 then
+                H.span [ ] [ H.text "None" ]
+
+            else
+                H.div [ ] (List.map (Maybe.withDefault (H.text "")) modDesc
+                    |> List.intersperse (H.br [] [])
+                )
+
+            ]
+        ]
+
+
 view : Model -> H.Html Msg
 view model =
     H.div
@@ -474,7 +506,7 @@ view model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "3+"
+                    , A.placeholder "4+"
                     , A.id model.fields.weaponSkill.id
                     ]
                     (Fields.weaponSkillValue.get model |> Maybe.map formatPassValue)
@@ -498,7 +530,7 @@ view model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "2"
+                    , A.placeholder "5"
                     , A.id model.fields.unitCount.id
                     ]
                     (Fields.unitCountValue.get model |> Maybe.map String.fromInt)
@@ -532,7 +564,7 @@ view model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "4"
+                    , A.placeholder "3"
                     , A.id model.fields.strength.id
                     ]
                     (Fields.strengthValue.get model |> Maybe.map String.fromInt)
@@ -555,7 +587,7 @@ view model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "-2"
+                    , A.placeholder "-1"
                     , A.id model.fields.armorPenetration.id
                     ]
                     (Fields.armorPenetrationValue.get model |> Maybe.map formatArmorPenetration)
