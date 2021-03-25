@@ -33,24 +33,25 @@ attackerPresets =
 
 defenderPresets : List ( String, Model -> Model )
 defenderPresets =
-    [ ("Plague Marines",
-        Fields.toughnessValue.set (Just 4)
-        >> Fields.saveValue.set (Just 3)
-    )
-
+    [ ( "Plague Marines"
+      , Fields.toughnessValue.set (Just 4)
+            >> Fields.saveValue.set (Just 3)
+      )
     ]
 
 
 shurikenWeapons : Modifier
 shurikenWeapons =
-    Run.Compare Run.Eq 6 (Run.InfluenceNext
-        <| Run.Compare Run.Always 0 (Run.SubtractValue 3)
-    )
+    Run.Compare Run.Eq
+        6
+        (Run.InfluenceNext <|
+            Run.Compare Run.Always 0 (Run.SubtractValue 3)
+        )
+
 
 weaponSkillPresets : List ( String, Modifier )
 weaponSkillPresets =
-    [
-    ]
+    []
 
 
 woundPresets : List Modifier
