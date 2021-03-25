@@ -10,7 +10,6 @@ import Fields exposing (Fields)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
-import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isJust)
@@ -19,6 +18,45 @@ import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run exposing (Compare(..), Modifier(..))
 import TextInput
+
+
+attackerPresets : List ( String, Model -> Model )
+attackerPresets =
+    [ ( "Craftworld Guardians"
+      , Fields.weaponSkillValue.set (Just 3)
+            >> Fields.strengthValue.set (Just 4)
+            >> Fields.damageValue.set (Just <| Run.Fixed 1)
+            >> (\model -> { model | woundModifier = Just shurikenWeapons })
+      )
+    ]
+
+
+defenderPresets : List ( String, Model -> Model )
+defenderPresets =
+    [ ("Plague Marines",
+        Fields.toughnessValue.set (Just 4)
+        >> Fields.saveValue.set (Just 3)
+    )
+
+    ]
+
+
+shurikenWeapons : Modifier
+shurikenWeapons =
+    Run.Compare Run.Eq 6 (Run.InfluenceNext
+        <| Run.Compare Run.Always 0 (Run.SubtractValue 3)
+    )
+
+weaponSkillPresets : List ( String, Modifier )
+weaponSkillPresets =
+    [
+    ]
+
+
+woundPresets : List Modifier
+woundPresets =
+    [-- add one for shuriken weapons
+    ]
 
 
 type Effect
@@ -467,7 +505,7 @@ modifierListView : Model -> H.Html Msg
 modifierListView model =
     let
         modDesc =
-            [ Maybe.map (formatModifier "Wound" >> ((++) "On Roll to Hit: ") >> H.text) model.weaponSkillModifier
+            [ Maybe.map (formatModifier "Wound" >> (++) "On Roll to Hit: " >> H.text) model.weaponSkillModifier
             , Maybe.map (formatModifier "Save" >> (++) "On Roll to Wound: " >> H.text) model.woundModifier
             , Maybe.map (formatModifier "" >> (++) "On Roll to Save: " >> H.text) model.saveModifier
             ]
@@ -483,14 +521,14 @@ modifierListView model =
             [ H.text "Modifiers Applied:" ]
         , H.div
             [ A.class "tc pv1 f7 white lh-copy" ]
-            [  if modCount == 0 then
-                H.span [ ] [ H.text "None" ]
+            [ if modCount == 0 then
+                H.span [] [ H.text "None" ]
 
-            else
-                H.div [ ] (List.map (Maybe.withDefault (H.text "")) modDesc
-                    |> List.intersperse (H.br [] [])
-                )
-
+              else
+                H.div []
+                    (List.map (Maybe.withDefault (H.text "")) modDesc
+                        |> List.intersperse (H.br [] [])
+                    )
             ]
         ]
 
