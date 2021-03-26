@@ -36,6 +36,7 @@ defenderPresets =
     [ ( "Plague Marines"
       , Fields.toughnessValue.set (Just 4)
             >> Fields.saveValue.set (Just 3)
+            >> (\model -> { model | saveModifier = Just <| disgustinglyReslient 3 })
       )
     ]
 
@@ -49,6 +50,15 @@ shurikenWeapons =
         )
 
 
+disgustinglyReslient : Int -> Modifier
+disgustinglyReslient save =
+    Run.Compare Run.Lte
+        (save - 1)
+        (Run.InfluenceNext <|
+            Run.Compare Run.Always 0 (Run.Reroll (Just 5))
+        )
+
+
 weaponSkillPresets : List ( String, Modifier )
 weaponSkillPresets =
     []
@@ -58,22 +68,6 @@ woundPresets : List Modifier
 woundPresets =
     [-- add one for shuriken weapons
     ]
-
-
-type Effect
-    = EffCmd (Cmd Msg)
-    | EffBatch (List Effect)
-
-
-fromEffect : Effect -> Cmd Msg
-fromEffect eff =
-    case eff of
-        EffCmd cmd ->
-            cmd
-
-        EffBatch cmds ->
-            List.map fromEffect cmds |> Cmd.batch
-
 
 type ModifierCategory
     = WeaponSkill
@@ -139,7 +133,7 @@ modelToSetup model =
         (Fields.saveValue.get model)
 
 
-init : D.Value -> ( Model, Effect )
+init : D.Value -> ( Model, Cmd Msg )
 init flagsJson =
     let
         flagsResult =
@@ -167,23 +161,23 @@ init flagsJson =
       , modifierCategory = Save
       , result = Nothing
       }
-    , EffCmd Cmd.none
+    , Cmd.none
     )
 
 
-update : Msg -> Model -> ( Model, Effect )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClearModifier category ->
             case category of
                 WeaponSkill ->
-                    ( { model | weaponSkillModifier = Nothing }, EffCmd Cmd.none )
+                    ( { model | weaponSkillModifier = Nothing }, Cmd.none )
 
                 Wound ->
-                    ( { model | woundModifier = Nothing }, EffCmd Cmd.none )
+                    ( { model | woundModifier = Nothing }, Cmd.none )
 
                 Save ->
-                    ( { model | saveModifier = Nothing }, EffCmd Cmd.none )
+                    ( { model | saveModifier = Nothing }, Cmd.none )
 
         RunInput setup ->
             let
@@ -201,47 +195,47 @@ update msg model =
                     toFloat sum / toFloat count
             in
             ( { model | result = Just average }
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         WeaponSkillChanged value ->
             ( Fields.weaponSkillValue.set (parsePassValue value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         ToughnessChanged value ->
             ( Fields.toughnessValue.set (parsePassValue value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         StrengthChanged value ->
             ( Fields.strengthValue.set (String.toInt value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         DamageChanged value ->
             ( Fields.damageValue.set (parseFixedOrRoll value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         ArmorPenetrationChanged value ->
             ( Fields.armorPenetrationValue.set (parseArmorPenetration value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         UnitCountChanged value ->
             ( Fields.unitCountValue.set (String.toInt value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         SaveChanged value ->
             ( Fields.saveValue.set (parsePassValue value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         AttackCountChanged value ->
             ( Fields.attackCountValue.set (String.toInt value) model
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         SubmitModifierForm modifierCategory modifier ->
@@ -251,7 +245,7 @@ update msg model =
                         | weaponSkillModifier = Just modifier
                         , modalOpen = False
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
                 Wound ->
@@ -259,7 +253,7 @@ update msg model =
                         | woundModifier = Just modifier
                         , modalOpen = False
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
                 Save ->
@@ -267,7 +261,7 @@ update msg model =
                         | saveModifier = Just modifier
                         , modalOpen = False
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
         OpenModifierForm modifierCategory ->
@@ -284,7 +278,7 @@ update msg model =
                         , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
                 Wound ->
@@ -299,7 +293,7 @@ update msg model =
                         , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
                 Save ->
@@ -314,7 +308,7 @@ update msg model =
                         , modifierCategory = modifierCategory
                         , modalOpen = True
                       }
-                    , EffCmd Cmd.none
+                    , Cmd.none
                     )
 
         ModifierFormMsg modifierFormMsg ->
@@ -328,18 +322,18 @@ update msg model =
             ( { model
                 | modifierForm = modifierForm
               }
-            , EffCmd modifierFormCmd
+            , modifierFormCmd
             )
 
         CloseModalButtonClicked ->
             ( { model
                 | modalOpen = False
               }
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         NoOp ->
-            ( model, EffCmd Cmd.none )
+            ( model, Cmd.none )
 
 
 cardView : Maybe Msg -> String -> H.Html Msg -> H.Html Msg
@@ -700,8 +694,8 @@ view model =
 main : Program D.Value Model Msg
 main =
     element
-        { update = \msg model -> update msg model |> Tuple.mapSecond fromEffect
-        , init = init >> Tuple.mapSecond fromEffect
+        { update = \msg model -> update msg model
+        , init = init
         , subscriptions = \_ -> Sub.none
         , view = layout
         }

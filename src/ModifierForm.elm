@@ -49,24 +49,6 @@ formatModifier nextPhase mod =
 
         _ -> ""
 
-
-type Effect
-    = EffCmd (Cmd Msg)
-    | EffBatch (List Effect)
-
-
-fromEffect : Effect -> Cmd Msg
-fromEffect eff =
-    case eff of
-        EffCmd cmd ->
-            cmd
-
-        EffBatch effList ->
-            effList
-                |> List.map fromEffect
-                |> Cmd.batch
-
-
 type alias Model_ =
     { compareDropdownMenu : DropdownMenu.Model
     , compareCondition : Maybe ( Compare, String )
@@ -233,25 +215,25 @@ init =
     Model init_
 
 
-update_ : Msg -> Model_ -> ( Model_, Effect )
+update_ : Msg -> Model_ -> ( Model_, Cmd Msg )
 update_ msg model =
     case msg of
         NoOp ->
-            ( model, EffCmd Cmd.none )
+            ( model, Cmd.none )
 
         ValueModChanged valueMod ->
             ( { model | valueMod = String.toInt valueMod }
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         PassValueChanged passValue ->
             ( { model | passValue = String.toInt passValue }
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         NewPassValueChanged newPassValue ->
             ( { model | newPassValue = parsePassValue newPassValue }
-            , EffCmd Cmd.none
+            , Cmd.none
             )
 
         NextModifierMsg nextModifierMsg ->
@@ -260,7 +242,7 @@ update_ msg model =
                     let
                         ( nextModifierForm, nextModifierCmd ) =
                             update_ nextModifierMsg model_
-                                |> Tuple.mapSecond (fromEffect >> Cmd.map NextModifierMsg >> EffCmd)
+                                |> Tuple.mapSecond (Cmd.map NextModifierMsg)
                     in
                     ( { model
                         | nextModifierForm = Just (Model nextModifierForm)
@@ -269,7 +251,7 @@ update_ msg model =
                     )
 
                 _ ->
-                    ( model, EffCmd Cmd.none )
+                    ( model, Cmd.none )
 
         CompareMenuMsg dropdownMenuMsg ->
             let
@@ -289,7 +271,7 @@ update_ msg model =
                         _ ->
                             model.compareCondition
               }
-            , EffCmd dropdownMenuCmd
+            , dropdownMenuCmd
             )
 
         ResultMenuMsg dropdownMenuMsg ->
@@ -320,7 +302,7 @@ update_ msg model =
                         _ ->
                             model.nextModifierForm
               }
-            , EffCmd dropdownMenuCmd
+            , dropdownMenuCmd
             )
 
 
@@ -329,7 +311,6 @@ update msg model =
     case model of
         Model model_ ->
             update_ msg model_
-                |> Tuple.mapSecond fromEffect
                 |> Tuple.mapFirst Model
 
 
