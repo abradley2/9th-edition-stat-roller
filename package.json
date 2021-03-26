@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "elm-test",
+    "coverage": "elm-coverage --elm-test ./node_modules/.bin/elm-test",
     "dev": "parcel serve ./src/index.html",
     "build": "parcel build ./src/index.html"
   },
@@ -12,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "elm": "^0.19.1-5",
+    "elm-coverage": "^0.3.0",
+    "elm-test": "^0.19.1-revision6",
     "parcel-bundler": "^1.12.4"
   },
   "devDependencies": {
