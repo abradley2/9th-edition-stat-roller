@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "elm-test",
-    "coverage": "elm-coverage --elm-test ./node_modules/.bin/elm-test",
+    "coverage": "elm-coverage",
     "dev": "parcel serve ./src/index.html",
     "build": "parcel build ./src/index.html"
   },
@@ -14,7 +14,7 @@
   "dependencies": {
     "elm": "^0.19.1-5",
     "elm-coverage": "^0.3.0",
-    "elm-test": "^0.19.1-revision6",
+    "elm-test": "0.19.1-revision5",
     "parcel-bundler": "^1.12.4"
   },
   "devDependencies": {

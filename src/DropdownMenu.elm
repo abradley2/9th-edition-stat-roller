@@ -1,7 +1,7 @@
 module DropdownMenu exposing (..)
 
-import Accessibility.Role exposing (listBox, listItem, menu, menuItem)
-import Accessibility.Widget exposing (hasMenuPopUp)
+import Accessibility.Role exposing (menu, menuItem)
+import Accessibility.Widget exposing (hasMenuPopUp, hidden)
 import Browser.Dom exposing (Error, focus)
 import Html as H
 import Html.Attributes as A
@@ -54,7 +54,8 @@ type alias Config a =
 view : Model -> Config a -> H.Html (Msg a)
 view model config =
     H.div
-        []
+        [ A.id config.id
+        ]
         [ H.button
             [ A.classList
                 [ ( "black-80 b--light-blue bg-black helvetica button-reset flex justify-between", True )
@@ -64,7 +65,6 @@ view model config =
                 ]
             , hasMenuPopUp
             , E.onClick (ToggleMenuOpen (not model))
-            , A.id config.id
             ]
             [ H.span
                 []
@@ -78,24 +78,32 @@ view model config =
         , H.div
             [ A.class "relative"
             ]
-            [ if model then
-                H.node "focus-menu"
-                    [ A.class <|
-                        "flex flex-column absolute mt1 left-0 right-0 "
-                            ++ "absolute bg-black ph2 pv1 br3 ba b--light-blue"
-                            ++ " z-1 "
-                    , A.tabindex 0
-                    , menu
-                    , listBox
-                    , E.on "requestedclose" (D.succeed <| ToggleMenuOpen False)
-                    , A.attribute "show" "true"
-                    ]
-                    (config.items
-                        |> List.map (buttonView config)
-                    )
+            [ H.node "focus-menu"
+                [ A.class <|
+                    "flex-column absolute mt1 left-0 right-0 "
+                        ++ "absolute bg-black ph2 pv1 br3 ba b--light-blue"
+                        ++ " z-1 "
+                        ++ (if model then
+                                " flex "
 
-              else
-                H.text ""
+                            else
+                                " dn "
+                           )
+                , hidden (not model)
+                , A.tabindex 0
+                , menu
+                , E.on "requestedclose" (D.succeed <| ToggleMenuOpen False)
+                , A.attribute "show"
+                    (if model then
+                        "true"
+
+                     else
+                        "false"
+                    )
+                ]
+                (config.items
+                    |> List.map (buttonView config)
+                )
             , H.label
                 [ A.for config.id
                 , A.class "f7 white-80 db pl2 pt2"
@@ -109,7 +117,6 @@ buttonView : Config a -> ( a, String ) -> H.Html (Msg a)
 buttonView config ( value, label ) =
     H.button
         [ menuItem
-        , listItem
         , A.class <|
             "bg-white-10 light-blue ba pv2 ph1 br2 normal f7 b--light-blue mv1 helvetica "
                 ++ "pointer hover-bg-white-20"

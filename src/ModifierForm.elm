@@ -334,8 +334,8 @@ view nextPhase model config =
                     , liveAssertive
                     ]
                     [ H.button
-                        ([]
-                            ++ (case modelToModifier model_ of
+                        ((A.id "apply-modifier-button")
+                            :: (case modelToModifier model_ of
                                     Just mod ->
                                         [ disabled False
                                         , A.class Button.baseButtonClass

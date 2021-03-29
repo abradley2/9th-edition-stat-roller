@@ -1,7 +1,7 @@
 dependencies:
   elm: 0.19.1-5
   elm-coverage: 0.3.0
-  elm-test: 0.19.1-revision6
+  elm-test: 0.19.1-revision5
   parcel-bundler: 1.12.4
 devDependencies:
   cssnano: 4.1.10
@@ -2423,6 +2423,25 @@ packages:
     dev: true
     resolution:
       integrity: sha512-HSMlAr6INTV82wkpPNG0zsHoJXo/04GwG7bnhFX8s4zyIbbzuJAovsdo27FAT6/NKx5IVTXGI+IFcK9Z7oN1Tw==
+  /elm-test/0.19.1-revision5:
+    dependencies:
+      chalk: 4.1.0
+      chokidar: 3.5.1
+      commander: 7.2.0
+      cross-spawn: 7.0.3
+      elm-tooling: 1.3.0
+      glob: 7.1.6
+      graceful-fs: 4.2.6
+      rimraf: 3.0.2
+      split: 1.0.1
+      which: 2.0.2
+      xmlbuilder: 15.1.1
+    dev: false
+    engines:
+      node: '>=10.13.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-QJPzXMjdnba5+gX3IlPbcwulisYP+Sf92z6w39wP7Sq/8lyI5NQGcWEBD1NavIl0ERtWBVbFp0RvHXbParwxXA==
   /elm-test/0.19.1-revision6:
     dependencies:
       chalk: 4.1.0
@@ -6680,7 +6699,7 @@ specifiers:
   elm: ^0.19.1-5
   elm-coverage: ^0.3.0
   elm-hot: ^1.1.5
-  elm-test: ^0.19.1-revision6
+  elm-test: 0.19.1-revision5
   eslint: ^7.18.0
   eslint-config-standard: ^16.0.2
   eslint-plugin-import: ^2.22.1

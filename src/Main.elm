@@ -69,6 +69,7 @@ woundPresets =
     [-- add one for shuriken weapons
     ]
 
+
 type ModifierCategory
     = WeaponSkill
     | Wound
@@ -428,7 +429,7 @@ modalView model =
                             Nothing
                     )
                     model.modifierForm
-                    { id = "my-form"
+                    { id = "modifier-form"
                     , mapMsg = ModifierFormMsg
                     , onSubmit = SubmitModifierForm model.modifierCategory
                     }
@@ -454,15 +455,17 @@ layout model =
             [ A.class "flex justify-center flex-column items-center white-70 avenir"
             ]
             [ H.button
-                ([]
-                    ++ (case modelToSetup model of
+                (A.id "submit-button"
+                    :: (case modelToSetup model of
                             Just setup ->
                                 [ E.onClick <| RunInput setup
                                 , A.class Button.baseButtonClass
+                                , A.id "submit-button"
                                 ]
 
                             Nothing ->
                                 [ A.class Button.disabledButtonClass
+                                , A.id "submit-button"
                                 ]
                        )
                 )
@@ -689,13 +692,3 @@ view model =
                         H.text ""
                 ]
         ]
-
-
-main : Program D.Value Model Msg
-main =
-    element
-        { update = \msg model -> update msg model
-        , init = init
-        , subscriptions = \_ -> Sub.none
-        , view = layout
-        }

@@ -1,4 +1,4 @@
-import { Elm } from './Main.elm'
+import { Elm } from './App.elm'
 import FocusMenu from './FocusMenu'
 import FocusTrap from './FocusTrap'
 
@@ -14,7 +14,7 @@ const seeds = crypto.getRandomValues(new Uint16Array(1000))
 window.customElements.define('focus-menu', FocusMenu)
 window.customElements.define('focus-trap', FocusTrap)
 
-Elm.Main.init({
+Elm.App.init({
   node,
   flags: {
     seed,
