@@ -445,11 +445,19 @@ modalView model =
         ]
 
 
+presetSelectionView : Model -> H.Html Msg
+presetSelectionView model =
+    H.div
+        []
+        []
+
+
 layout : Model -> H.Html Msg
 layout model =
     H.div
         []
-        [ view model
+        [ presetSelectionView model
+        , view model
         , modifierListView model
         , H.div
             [ A.class "flex justify-center flex-column items-center white-70 avenir"

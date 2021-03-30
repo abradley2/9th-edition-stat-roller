@@ -1,8 +1,7 @@
 module ModifierForm exposing (..)
 
 import Accessibility exposing (fieldset)
-import Accessibility.Live exposing (liveAssertive, livePolite)
-import Accessibility.Widget exposing (disabled, required)
+import Accessibility.Widget exposing (disabled)
 import Button
 import DropdownMenu
 import FieldParser exposing (formatPassValue, parsePassValue)
@@ -331,7 +330,6 @@ view nextPhase model config =
                     |> H.map config.mapMsg
                 , H.div
                     [ A.class "white pa3"
-                    , liveAssertive
                     ]
                     [ H.button
                         ((A.id "apply-modifier-button")
@@ -382,7 +380,6 @@ view_ nextPhase model config nested =
         ]
         [ fieldset
             [ A.class "flex items-start ml3 mt3"
-            , liveAssertive
             ]
             [ DropdownMenu.view model.compareDropdownMenu
                 { selectedLabel = Maybe.map Tuple.second model.compareCondition
@@ -414,7 +411,6 @@ view_ nextPhase model config nested =
             ]
         , fieldset
             [ A.class "flex items-start ml3 mt3"
-            , liveAssertive
             ]
             [ DropdownMenu.view model.resultDropdownMenu
                 { selectedLabel = Maybe.map Tuple.second model.resultModifier
