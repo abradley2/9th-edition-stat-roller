@@ -33,18 +33,18 @@ init : Fields
 init =
     { weaponSkill = Field "weapon-skill" "Weapon/Ballistic Skill" Nothing Nothing
     , unitCount = Field "unit-count" "Attacking Units" Nothing Nothing
-    , attackCount = Field "attack count" "Attacks per Unit" Nothing Nothing
+    , attackCount = Field "attack-count" "Attacks per Unit" Nothing Nothing
     , strength = Field "strength" "Attack Strength" Nothing Nothing
     , armorPenetration = Field "armor-penetration" "Armor Penetration" Nothing Nothing
-    , damage = Field "damage" "Damage" Nothing Nothing
+    , damage = initDamage
     , toughness = Field "toughness" "Toughness" Nothing Nothing
     , save = Field "save" "Save" Nothing Nothing
     }
 
 
-initArmorPenetration : Int -> Field Int
-initArmorPenetration value =
-    Field "armor-penetration" "Armor Penetration" (Just value) Nothing
+initDamage : Field FixedOrRoll
+initDamage =
+    Field "damage" "Damage" Nothing Nothing
 
 
 fields : Lens (Model b) Fields

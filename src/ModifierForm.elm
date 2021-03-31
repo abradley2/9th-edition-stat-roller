@@ -8,20 +8,20 @@ import FieldParser exposing (formatPassValue, parsePassValue)
 import Html as H
 import Html.Attributes as A
 import Html.Events as E
-import Run exposing (Compare(..), Modifier(..))
+import Die exposing (Compare(..), Modifier(..))
 import TextInput
 
 
 formatModifier : String -> Modifier -> String
 formatModifier nextPhase mod =
     case mod of
-        Run.AddValue val ->
+        Die.AddValue val ->
             "Add " ++ String.fromInt val
 
-        Run.SubtractValue val ->
+        Die.SubtractValue val ->
             "Subtract " ++ String.fromInt val
 
-        Run.Reroll mVal ->
+        Die.Reroll mVal ->
             case mVal of
                 Just val ->
                     "Roll for " ++ formatPassValue val
@@ -29,7 +29,7 @@ formatModifier nextPhase mod =
                 Nothing ->
                     "Re-roll"
 
-        Run.Compare cmp val nextMod ->
+        Die.Compare cmp val nextMod ->
             case cmp of
                 Always ->
                     "Always " ++ formatModifier nextPhase nextMod
@@ -43,7 +43,7 @@ formatModifier nextPhase mod =
                 Gte ->
                     formatModifier nextPhase nextMod ++ " when Greater Than or Equal to " ++ String.fromInt val
 
-        Run.InfluenceNext nextMod ->
+        Die.InfluenceNext nextMod ->
             formatModifier "" nextMod ++ " on " ++ nextPhase
 
         _ -> ""
@@ -64,14 +64,11 @@ modifierToModel : Modifier -> Model
 modifierToModel modifier =
     Model <|
         case modifier of
-            NoMod ->
-                init_
-
             Compare compare passValue resultMod ->
                 let
                     nextModifierForm =
                         case resultMod of
-                            Run.InfluenceNext nextMod ->
+                            Die.InfluenceNext nextMod ->
                                 nextMod
                                     |> modifierToModel
                                     |> Just
@@ -81,16 +78,16 @@ modifierToModel modifier =
 
                     ( resultType, valueMod, newPassValue ) =
                         case resultMod of
-                            Run.AddValue value ->
+                            Die.AddValue value ->
                                 ( ValueMod Add, Just value, Nothing )
 
-                            Run.SubtractValue value ->
+                            Die.SubtractValue value ->
                                 ( ValueMod Subtract, Just value, Nothing )
 
-                            Run.Reroll (Just value) ->
+                            Die.Reroll (Just value) ->
                                 ( RerollNew, Nothing, Just value )
 
-                            Run.Reroll Nothing ->
+                            Die.Reroll Nothing ->
                                 ( Reroll, Nothing, Nothing )
 
                             _ ->
@@ -126,7 +123,7 @@ modelToModifier model =
                     (\cmp ->
                         case cmp of
                             Always ->
-                                Just <| Compare Run.Always 1
+                                Just <| Compare Die.Always 1
 
                             _ ->
                                 Maybe.map
@@ -141,16 +138,16 @@ modelToModifier model =
                     (\resMod ->
                         case resMod of
                             Reroll ->
-                                Just (Run.Reroll Nothing)
+                                Just (Die.Reroll Nothing)
 
                             RerollNew ->
-                                Maybe.map (Just >> Run.Reroll) model.newPassValue
+                                Maybe.map (Just >> Die.Reroll) model.newPassValue
 
                             ValueMod Add ->
-                                Maybe.map Run.AddValue model.valueMod
+                                Maybe.map AddValue model.valueMod
 
                             ValueMod Subtract ->
-                                Maybe.map Run.SubtractValue model.valueMod
+                                Maybe.map SubtractValue model.valueMod
 
                             InfluenceNext ->
                                 Maybe.andThen modelToModifier
@@ -161,7 +158,7 @@ modelToModifier model =
                                         Nothing ->
                                             Nothing
                                     )
-                                    |> Maybe.map Run.InfluenceNext
+                                    |> Maybe.map Die.InfluenceNext
                     )
     in
     Maybe.map2

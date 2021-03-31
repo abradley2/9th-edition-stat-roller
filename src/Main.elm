@@ -3,7 +3,6 @@ module Main exposing (..)
 import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
-import Browser exposing (element)
 import Button
 import FieldParser exposing (formatArmorPenetration, formatFixedOrRoll, formatPassValue, parseArmorPenetration, parseFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
@@ -16,7 +15,8 @@ import Maybe.Extra exposing (isJust)
 import ModifierForm exposing (formatModifier)
 import Random exposing (Seed)
 import Result.Extra as ResultX
-import Run exposing (Compare(..), Modifier(..))
+import Die exposing (Compare(..), Modifier(..))
+import Run
 import TextInput
 
 
@@ -43,19 +43,19 @@ defenderPresets =
 
 shurikenWeapons : Modifier
 shurikenWeapons =
-    Run.Compare Run.Eq
+    Die.Compare Die.Eq
         6
-        (Run.InfluenceNext <|
-            Run.Compare Run.Always 0 (Run.SubtractValue 3)
+        (Die.InfluenceNext <|
+            Die.Compare Die.Always 0 (Die.SubtractValue 3)
         )
 
 
 disgustinglyReslient : Int -> Modifier
 disgustinglyReslient save =
-    Run.Compare Run.Lte
+    Die.Compare Die.Lte
         (save - 1)
-        (Run.InfluenceNext <|
-            Run.Compare Run.Always 0 (Run.Reroll (Just 5))
+        (Die.InfluenceNext <|
+            Die.Compare Die.Always 0 (Die.Reroll (Just 5))
         )
 
 

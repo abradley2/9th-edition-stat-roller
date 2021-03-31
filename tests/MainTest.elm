@@ -10,7 +10,7 @@ import Json.Encode as E
 import Main exposing (..)
 import Maybe.Extra exposing (isJust)
 import Result.Extra as ResultX
-import Run
+import Die
 import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
@@ -245,10 +245,10 @@ suite =
                                 >> .woundModifier
                                 >> Expect.equal
                                     (Just <|
-                                        Run.Compare Run.Eq
+                                        Die.Compare Die.Eq
                                             6
-                                            (Run.InfluenceNext <|
-                                                Run.Compare Run.Always 1 (Run.SubtractValue 3)
+                                            (Die.InfluenceNext <|
+                                                Die.Compare Die.Always 1 (Die.SubtractValue 3)
                                             )
                                     )
                             ]

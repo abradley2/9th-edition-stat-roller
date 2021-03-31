@@ -1,108 +1,7 @@
 module Run exposing (..)
 
+import Die exposing (Compare(..), Die, DieState(..), Modifier(..), rollDie)
 import Random
-
-
-type alias Die =
-    { sides : Int
-    , passValue : Int
-    , modifier : Maybe Modifier
-    }
-
-
-type Modifier
-    = NoMod
-    | AddValue Int
-    | SubtractValue Int
-    | InfluenceNext Modifier
-    | Reroll (Maybe Int)
-    | Compare Compare Int Modifier
-    | MaybeMod (Maybe Modifier)
-    | Batch (List Modifier)
-
-
-type Compare
-    = Always
-    | Lte
-    | Gte
-    | Eq
-
-
-rollDie : Random.Seed -> Die -> ( Int, Random.Seed )
-rollDie seed die =
-    Random.step (Random.int 1 die.sides) seed
-
-
-applyModifier : Die -> Modifier -> ( Int, Random.Seed ) -> ( Random.Seed, Int, Maybe Modifier )
-applyModifier die modifier ( currentVal, seed ) =
-    case modifier of
-        MaybeMod mMod ->
-            mMod
-                |> Maybe.map (\mod -> applyModifier die mod ( currentVal, seed ))
-                |> Maybe.withDefault ( seed, currentVal, Nothing )
-
-        Compare Lte val nextMod ->
-            if currentVal <= val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        Compare Always _ nextMod ->
-            applyModifier die nextMod ( currentVal, seed )
-
-        Compare Gte val nextMod ->
-            if currentVal >= val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        Compare Eq val nextMod ->
-            if currentVal == val then
-                applyModifier die nextMod ( currentVal, seed )
-
-            else
-                ( seed, currentVal, Nothing )
-
-        AddValue plusVal ->
-            ( seed, currentVal + plusVal, Nothing )
-
-        SubtractValue minusVal ->
-            ( seed, currentVal - minusVal, Nothing )
-
-        Reroll mNewVal ->
-            let
-                nextDie =
-                    mNewVal
-                        |> Maybe.map (\passValue -> { die | passValue = passValue })
-                        |> Maybe.withDefault die
-
-                ( nextVal, nextSeed ) =
-                    rollDie seed nextDie
-
-
-                -- TODO: I hate this
-                modVal = Maybe.map (\diff -> nextVal - (diff - die.passValue))  mNewVal |> Maybe.withDefault nextVal
-            in
-            ( nextSeed, modVal, Nothing )
-
-        InfluenceNext nextMod ->
-            ( seed, currentVal, Just nextMod )
-
-        NoMod ->
-            ( seed, currentVal, Nothing )
-
-        Batch modlist ->
-            List.foldr
-                (\mod ( curSeed, curVal, curMod ) ->
-                    applyModifier die mod ( curVal, curSeed )
-                        |> (\( nextSeed, nextVal, nextMod ) ->
-                                ( nextSeed, nextVal, Just <| Batch [ MaybeMod curMod, MaybeMod nextMod ] )
-                           )
-                )
-                ( seed, currentVal, Nothing )
-                modlist
 
 
 type alias Setup =
@@ -163,7 +62,7 @@ run_ seed setup phase nextPhase currentDamage =
                 run_
                     seed
                     { setup | attacks = setup.attacks - 1 }
-                    (Attack <| Die 6 setup.weaponSkill setup.weaponSkillModifier :: dice)
+                    (Attack <| Die 6 setup.weaponSkill NotRolled setup.weaponSkillModifier :: dice)
                     nextPhase
                     0
 
@@ -174,20 +73,25 @@ run_ seed setup phase nextPhase currentDamage =
 
                     currentRoll :: nextRolls ->
                         let
-                            ( rollValue_, nextSeed_ ) =
-                                rollDie seed currentRoll
+                            ( nextSeed, nextDie, nextMod ) =
+                                rollDie currentRoll seed
 
-                            ( nextSeed, rollValue, nextMod ) =
-                                currentRoll.modifier
-                                    |> Maybe.map (\mod -> applyModifier currentRoll mod ( rollValue_, nextSeed_ ))
-                                    |> Maybe.withDefault ( nextSeed_, rollValue_, Nothing )
+                            withSetupMod = Batch
+                                [ MaybeMod nextMod
+                                , MaybeMod setup.woundModifier
+                                ]
 
                             nextWounds =
-                                if rollValue >= currentRoll.passValue then
-                                    Die 6 (woundPassValue setup) nextMod :: woundDice
+                                case nextDie.state of
+                                    Passed _ ->
+                                        Die 6
+                                            (Debug.log "woundPassvalue : " <| woundPassValue setup)
+                                            NotRolled
+                                            (Just withSetupMod)
+                                            :: woundDice
 
-                                else
-                                    woundDice
+                                    _ ->
+                                        woundDice
                         in
                         run_
                             nextSeed
@@ -208,28 +112,24 @@ run_ seed setup phase nextPhase currentDamage =
 
                 currentRoll :: nextRolls ->
                     let
-                        ( nextSeed, rollValue, nextMod ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll
-                                    (Batch
-                                        [ MaybeMod currentRoll.modifier
-                                        , MaybeMod setup.woundModifier
-                                        ]
-                                    )
+                        ( nextSeed, nextDie, nextMod ) =
+                            rollDie currentRoll seed
 
-                        modWithAp =
+                        withSetupMod =
                             Batch
                                 [ MaybeMod nextMod
                                 , SubtractValue (setup.armorPenetration |> Maybe.withDefault 0)
+                                , MaybeMod setup.saveModifier
                                 ]
                                 |> Just
 
                         nextSaves =
-                            if rollValue >= currentRoll.passValue then
-                                Die 6 setup.save modWithAp :: saveDice
+                            case nextDie.state of
+                                Passed _ ->
+                                    Die 6 setup.save NotRolled withSetupMod :: saveDice
 
-                            else
-                                saveDice
+                                _ ->
+                                    saveDice
                     in
                     run_
                         nextSeed
@@ -245,25 +145,21 @@ run_ seed setup phase nextPhase currentDamage =
 
                 currentRoll :: nextRolls ->
                     let
-                        ( nextSeed, rollValue, nextMod ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll
-                                    (Batch
-                                        [ MaybeMod currentRoll.modifier
-                                        , MaybeMod setup.saveModifier
-                                        ]
-                                    )
+                        ( nextSeed, nextDie, nextMod ) =
+                            rollDie currentRoll seed
 
-                        (nextDamageDice, nextDamage) =
-                            if rollValue < currentRoll.passValue then
-                                case setup.damage of
-                                    Fixed val ->
-                                       (damageDice, currentDamage + val)
+                        ( nextDamageDice, nextDamage ) =
+                            case nextDie.state of
+                                Passed _ ->
+                                    case setup.damage of
+                                        Fixed val ->
+                                            ( damageDice, currentDamage + val )
 
-                                    Roll val ->
-                                        (Die val 0 Nothing :: damageDice, currentDamage)
-                            else
-                                (damageDice, currentDamage)
+                                        Roll val ->
+                                            ( Die val 1 NotRolled nextMod :: damageDice, currentDamage )
+                                _ ->
+                                    (damageDice, currentDamage)
+
                     in
                     run_
                         nextSeed
@@ -284,9 +180,12 @@ run_ seed setup phase nextPhase currentDamage =
 
                 currentRoll :: nextRolls ->
                     let
-                        ( nextSeed, rollVal, _ ) =
-                            rollDie seed currentRoll
-                                |> applyModifier currentRoll (MaybeMod currentRoll.modifier)
+                        ( nextSeed, nextDie, _ ) =
+                            rollDie currentRoll seed
+
+                        rollVal = case nextDie.state of
+                            Passed val -> val
+                            _ -> -100000000
                     in
                     run_
                         nextSeed

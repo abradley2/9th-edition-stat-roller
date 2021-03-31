@@ -14,8 +14,6 @@ export default class FocusMenu extends HTMLElement {
     if (name === 'show') {
       const show = newVal === 'true'
 
-      console.log({ show })
-
       if (!show) {
         if (node.onDisconnect) {
           node.onDisconnect()

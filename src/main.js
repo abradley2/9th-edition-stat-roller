@@ -9,7 +9,7 @@ const node = document.createElement('div')
 document.body.appendChild(node)
 
 const seed = crypto.getRandomValues(new Uint16Array(1))[0]
-const seeds = crypto.getRandomValues(new Uint16Array(1000))
+const seeds = crypto.getRandomValues(new Uint16Array(100))
 
 window.customElements.define('focus-menu', FocusMenu)
 window.customElements.define('focus-trap', FocusTrap)
