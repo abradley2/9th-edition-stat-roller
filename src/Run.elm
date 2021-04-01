@@ -62,7 +62,7 @@ run_ seed setup phase nextPhase currentDamage =
                 run_
                     seed
                     { setup | attacks = setup.attacks - 1 }
-                    (Attack <| Die 6 setup.weaponSkill NotRolled setup.weaponSkillModifier :: dice)
+                    (Attack <| Die 6 setup.weaponSkill NotRolled setup.weaponSkillModifier setup.attacks :: dice)
                     nextPhase
                     0
 
@@ -85,9 +85,10 @@ run_ seed setup phase nextPhase currentDamage =
                                 case nextDie.state of
                                     Passed _ ->
                                         Die 6
-                                            (Debug.log "woundPassvalue : " <| woundPassValue setup)
+                                            (woundPassValue setup)
                                             NotRolled
                                             (Just withSetupMod)
+                                            nextDie.id
                                             :: woundDice
 
                                     _ ->
@@ -126,7 +127,7 @@ run_ seed setup phase nextPhase currentDamage =
                         nextSaves =
                             case nextDie.state of
                                 Passed _ ->
-                                    Die 6 setup.save NotRolled withSetupMod :: saveDice
+                                    Die 6 setup.save NotRolled withSetupMod nextDie.id :: saveDice
 
                                 _ ->
                                     saveDice
@@ -156,7 +157,7 @@ run_ seed setup phase nextPhase currentDamage =
                                             ( damageDice, currentDamage + val )
 
                                         Roll val ->
-                                            ( Die val 1 NotRolled nextMod :: damageDice, currentDamage )
+                                            ( Die val 1 NotRolled nextMod nextDie.id :: damageDice, currentDamage )
                                 _ ->
                                     (damageDice, currentDamage)
 

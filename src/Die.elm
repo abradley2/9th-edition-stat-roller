@@ -15,9 +15,8 @@ type alias Die =
     , passValue : Int
     , state : DieState
     , modifier : Maybe Modifier
+    , id : Int
     }
-
-
 extractValue : Die -> Int
 extractValue die =
     case die.state of
