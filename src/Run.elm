@@ -119,7 +119,7 @@ run_ seed setup phase nextPhase currentDamage =
                         withSetupMod =
                             Batch
                                 [ MaybeMod nextMod
-                                , SubtractValue (setup.armorPenetration |> Maybe.withDefault 0)
+                                , SubtractValue (setup.armorPenetration |> Maybe.map abs |> Maybe.withDefault 0)
                                 , MaybeMod setup.saveModifier
                                 ]
                                 |> Just
@@ -151,7 +151,7 @@ run_ seed setup phase nextPhase currentDamage =
 
                         ( nextDamageDice, nextDamage ) =
                             case nextDie.state of
-                                Passed _ ->
+                                Failed _ ->
                                     case setup.damage of
                                         Fixed val ->
                                             ( damageDice, currentDamage + val )

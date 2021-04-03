@@ -16,12 +16,20 @@ export default class FocusMenu extends HTMLElement {
 
       if (!show) {
         if (node.onDisconnect) {
+          // TODO: Tie this explicitly to selection change
+          if (this.prevElement) {
+            const prev = this.prevElement
+            setTimeout(() => prev.focus(), 0)
+            this.prevElement = undefined
+          }
+
           node.onDisconnect()
           node.onDisconnect = undefined
         }
       }
 
       if (show) {
+        this.prevElement = document.activeElement
         function handleKeyPress (e) {
           if (e.key === 'ArrowUp') {
             if (
@@ -46,7 +54,7 @@ export default class FocusMenu extends HTMLElement {
             return
           }
           node.dispatchEvent(new Event('requestedclose'))
-          node.onDisconnect()
+          if (node.onDisconnect) node.onDisconnect()
         }
 
         document.addEventListener('keydown', handleKeyPress)

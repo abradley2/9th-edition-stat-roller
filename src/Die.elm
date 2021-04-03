@@ -17,6 +17,8 @@ type alias Die =
     , modifier : Maybe Modifier
     , id : Int
     }
+
+
 extractValue : Die -> Int
 extractValue die =
     case die.state of
@@ -82,25 +84,26 @@ type Modifier
     | Batch (List Modifier)
 
 
-rollDie : Die -> Random.Seed -> ( Random.Seed, Die, Maybe Modifier)
+rollDie : Die -> Random.Seed -> ( Random.Seed, Die, Maybe Modifier )
 rollDie die seed =
     let
-        (rollSeed, rolledDie, maybeMod) = rollDie_ die seed
+        ( rollSeed, rolledDie, maybeMod ) =
+            rollDie_ die seed
 
-        state =checkPass rollSeed rolledDie
-            |> (\(_, d, _) -> d)
-            |> .state
-            |>  Debug.log "state -> "
-
-
+        state =
+            checkPass rollSeed rolledDie
+                |> (\( _, d, _ ) -> d)
+                |> .state
     in
-        (rollSeed, { rolledDie | state = state }, maybeMod)
+    ( rollSeed, { rolledDie | state = state }, maybeMod )
+
 
 rollDie_ : Die -> Random.Seed -> ( Random.Seed, Die, Maybe Modifier )
 rollDie_ die seed =
     let
         ( nextSeed, nextDie, dieVal ) =
             checkPass seed die
+
         modifier =
             die.modifier
                 |> Maybe.withDefault (MaybeMod Nothing)
@@ -160,7 +163,7 @@ rollDie_ die seed =
                         ( nextSeed_, nextDie_, mNextMod_ ) =
                             rollDie_ { curDie | modifier = Just curMod } curSeed
                     in
-                    ( nextSeed_, Debug.log "MODIFIED" nextDie_, MaybeX.or mNextMod_ curNextMod )
+                    ( nextSeed_, nextDie_, MaybeX.or mNextMod_ curNextMod )
                 )
                 ( nextSeed, nextDie, Nothing )
                 modList
