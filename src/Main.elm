@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Browser exposing (element)
 import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
@@ -700,3 +701,12 @@ view model =
                         H.text ""
                 ]
         ]
+
+main : Program D.Value Model Msg
+main =
+    element
+        { update = \msg model -> update msg model
+        , init = init
+        , subscriptions = \_ -> Sub.none
+        , view = layout
+        }
