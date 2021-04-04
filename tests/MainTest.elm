@@ -28,7 +28,7 @@ initTestApp =
         ( model, _ ) =
             init flagsJson
     in
-    TestApp model (layout model)
+    TestApp model (view model)
 
 
 flagsJson : D.Value

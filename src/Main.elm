@@ -400,12 +400,12 @@ presetSelectionView model =
         []
 
 
-layout : Model -> H.Html Msg
-layout model =
+view : Model -> H.Html Msg
+view model =
     H.div
         []
         [ presetSelectionView model
-        , view model
+        , fieldCardsView model
         , modifierListView model
         , H.div
             [ A.class "flex justify-center flex-column items-center white-70 avenir"
@@ -487,8 +487,8 @@ modifierListView model =
         ]
 
 
-view : Model -> H.Html Msg
-view model =
+fieldCardsView : Model -> H.Html Msg
+fieldCardsView model =
     H.div
         [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
         ]
@@ -655,5 +655,5 @@ main =
         { update = \msg model -> update msg model
         , init = init
         , subscriptions = \_ -> Sub.none
-        , view = layout
+        , view = view
         }
