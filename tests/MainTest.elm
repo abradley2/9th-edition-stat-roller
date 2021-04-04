@@ -2,8 +2,7 @@ module MainTest exposing (..)
 
 import Accessibility.Role exposing (menu)
 import Accessibility.Widget exposing (hasMenuPopUp)
-import Basics.Extra exposing (flip)
-import Expect exposing (fail, pass)
+import Expect exposing (fail)
 import Html as H
 import Json.Decode as D
 import Json.Encode as E

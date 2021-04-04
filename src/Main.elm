@@ -12,7 +12,7 @@ import Html.Attributes as A
 import Html.Events as E
 import Json.Decode as D
 import List
-import Maybe.Extra exposing (isJust)
+import Maybe.Extra exposing (isJust, andMap)
 import ModifierForm exposing (formatModifier)
 import Random exposing (Seed)
 import Result.Extra as ResultX
@@ -101,9 +101,6 @@ type alias Flags =
     }
 
 
-map10 f10 a b c d e f g h i j =
-    Maybe.map5 f10 a b c d e |> Maybe.andThen (\f5 -> Maybe.map5 f5 f g h i j)
-
 
 type alias Model =
     { initialized : Bool
@@ -121,18 +118,17 @@ type alias Model =
 
 modelToSetup : Model -> Maybe Run.Setup
 modelToSetup model =
-    map10
-        Run.Setup
-        (Maybe.map2 (*) (Fields.unitCountValue.get model) (Fields.attackCountValue.get model))
-        (Fields.strengthValue.get model)
-        (Just model.woundModifier)
-        (Fields.weaponSkillValue.get model)
-        (Just model.weaponSkillModifier)
-        (Fields.toughnessValue.get model)
-        (Fields.damageValue.get model)
-        (Just <| Fields.armorPenetrationValue.get model)
-        (Just model.saveModifier)
-        (Fields.saveValue.get model)
+    Just Run.Setup
+        |> andMap (Maybe.map2 (*) (Fields.unitCountValue.get model) (Fields.attackCountValue.get model))
+        |> andMap (Fields.strengthValue.get model)
+        |> andMap (Just model.woundModifier)
+        |> andMap (Fields.weaponSkillValue.get model)
+        |> andMap (Just model.weaponSkillModifier)
+        |> andMap (Fields.toughnessValue.get model)
+        |> andMap (Fields.damageValue.get model)
+        |> andMap (Just <| Fields.armorPenetrationValue.get model)
+        |> andMap (Just model.saveModifier)
+        |> andMap (Fields.saveValue.get model)
 
 
 init : D.Value -> ( Model, Cmd Msg )
