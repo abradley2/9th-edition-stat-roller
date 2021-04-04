@@ -1,7 +1,7 @@
 module FieldParser exposing (..)
 
 import Basics.Extra exposing (flip)
-import Parser exposing ((|.), (|=), DeadEnd, Parser, float, int, map, oneOf, run, spaces, succeed, symbol)
+import Parser exposing ((|.), (|=), Parser, int, map, oneOf, run, succeed, symbol)
 import Run exposing (FixedOrRoll(..))
 
 

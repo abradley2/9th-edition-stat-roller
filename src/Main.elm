@@ -1,25 +1,26 @@
 module Main exposing (..)
 
-import Browser exposing (element)
+import Accessibility as H
 import Accessibility.Role exposing (dialog)
 import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
+import Browser exposing (element)
 import Button
+import Die exposing (Compare(..), Modifier(..))
 import FieldParser exposing (formatArmorPenetration, formatFixedOrRoll, formatPassValue, parseArmorPenetration, parseFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
-import Html as H
+import Html exposing (node)
 import Html.Attributes as A
 import Html.Events as E
 import Json.Decode as D
 import List
-import Maybe.Extra exposing (isJust, andMap)
+import Maybe.Extra exposing (andMap, isJust)
 import ModifierForm exposing (formatModifier)
+import Presets
 import Random exposing (Seed)
 import Result.Extra as ResultX
-import Die exposing (Compare(..), Modifier(..))
 import Run
 import TextInput
-
 
 
 type ModifierCategory
@@ -44,13 +45,13 @@ type Msg
     | SaveChanged String
     | WeaponSkillChanged String
     | RunInput Run.Setup
+    | AppliedPreset Model
 
 
 type alias Flags =
     { seed : Seed
     , seeds : List Seed
     }
-
 
 
 type alias Model =
@@ -117,6 +118,9 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        AppliedPreset newModel ->
+            ( newModel, Cmd.none )
+
         ClearModifier category ->
             case category of
                 WeaponSkill ->
@@ -336,7 +340,7 @@ modalView model =
         , A.style "transition" ".3s"
         , dialog
         ]
-        [ H.node "focus-trap"
+        [ node "focus-trap"
             [ A.classList
                 [ ( "relative w-90 w-70-m w-50-l center bg-black-80 br3 ba b--light-blue shadow-1", True )
                 , ( "pa2 db", True )
@@ -393,18 +397,11 @@ modalView model =
         ]
 
 
-presetSelectionView : Model -> H.Html Msg
-presetSelectionView model =
-    H.div
-        []
-        []
-
-
 view : Model -> H.Html Msg
 view model =
     H.div
         []
-        [ presetSelectionView model
+        [ Presets.presetsForm AppliedPreset model
         , fieldCardsView model
         , modifierListView model
         , H.div
@@ -481,7 +478,7 @@ modifierListView model =
               else
                 H.div []
                     (List.map (Maybe.withDefault (H.text "")) modDesc
-                        |> List.intersperse (H.br [] [])
+                        |> List.intersperse (H.br [])
                     )
             ]
         ]
@@ -648,6 +645,7 @@ fieldCardsView model =
                         H.text ""
                 ]
         ]
+
 
 main : Program D.Value Model Msg
 main =

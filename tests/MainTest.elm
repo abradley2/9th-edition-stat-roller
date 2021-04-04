@@ -63,7 +63,7 @@ userInteraction testApp selectors ev =
         |> Event.simulate ev
         |> Event.toResult
         |> Result.map (\model -> update model testApp.model |> Tuple.first)
-        |> Result.map (\model -> TestApp model (layout model))
+        |> Result.map (\model -> TestApp model (view model))
 
 
 suite : Test

@@ -1,11 +1,26 @@
 module Presets exposing (..)
 
+import Accessibility as H
 import Die exposing (Modifier)
 import Fields exposing (Fields)
+import Run
 
-type alias Model = { a | fields = Fields }
 
-attackerPresets : List ( String, Model -> Model )
+type alias Model a =
+    { a
+        | fields : Fields
+        , saveModifier : Maybe Modifier
+        , woundModifier : Maybe Modifier
+        , weaponSkillModifier : Maybe Modifier
+    }
+
+
+presetsForm : (Model a -> msg) -> Model a -> H.Html msg
+presetsForm onNewModel model =
+    H.div [] []
+
+
+attackerPresets : List ( String, Model a -> Model a )
 attackerPresets =
     [ ( "Craftworld Guardians"
       , Fields.weaponSkillValue.set (Just 3)
@@ -16,7 +31,7 @@ attackerPresets =
     ]
 
 
-defenderPresets : List ( String, Model -> Model )
+defenderPresets : List ( String, Model a -> Model a )
 defenderPresets =
     [ ( "Plague Marines"
       , Fields.toughnessValue.set (Just 4)
