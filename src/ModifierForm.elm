@@ -1,11 +1,10 @@
 module ModifierForm exposing (..)
 
-import Accessibility exposing (fieldset)
+import Accessibility as H exposing (fieldset)
 import Accessibility.Widget exposing (disabled)
 import Button
 import DropdownMenu
 import FieldParser exposing (formatPassValue, parsePassValue)
-import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Die exposing (Compare(..), Modifier(..))

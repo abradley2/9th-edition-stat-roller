@@ -16,7 +16,8 @@ import Json.Decode as D
 import List
 import Maybe.Extra exposing (andMap, isJust)
 import ModifierForm exposing (formatModifier)
-import Presets
+import PresetsForm
+import Tuple3
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run
@@ -36,6 +37,7 @@ type Msg
     | SubmitModifierForm ModifierCategory Modifier
     | ClearModifier ModifierCategory
     | ModifierFormMsg ModifierForm.Msg
+    | PresetsFormMsg PresetsForm.Msg
     | UnitCountChanged String
     | AttackCountChanged String
     | ArmorPenetrationChanged String
@@ -60,6 +62,7 @@ type alias Model =
     , modalOpen : Bool
     , modifierCategory : ModifierCategory
     , modifierForm : ModifierForm.Model
+    , presetsForm : PresetsForm.Model
     , weaponSkillModifier : Maybe Modifier
     , woundModifier : Maybe Modifier
     , saveModifier : Maybe Modifier
@@ -98,6 +101,7 @@ init flagsJson =
     ( { initialized = ResultX.isOk flagsResult
       , modalOpen = False
       , modifierForm = ModifierForm.init
+      , presetsForm = PresetsForm.init
       , flags =
             Result.withDefault
                 { seed = Random.initialSeed 0
@@ -118,6 +122,18 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        PresetsFormMsg presetsFormMsg ->
+            let
+                ( presetsForm, presetsFormCmd, nextModel ) =
+                    PresetsForm.update
+                        presetsFormMsg
+                        model.presetsForm
+                        |> Tuple3.mapSecond (Cmd.map PresetsFormMsg)
+                        |> Tuple3.mapThird (\apply -> apply model)
+                        
+            in
+            ( { nextModel | presetsForm = presetsForm }, presetsFormCmd )
+
         AppliedPreset newModel ->
             ( newModel, Cmd.none )
 
@@ -400,8 +416,8 @@ modalView model =
 view : Model -> H.Html Msg
 view model =
     H.div
-        []
-        [ Presets.presetsForm AppliedPreset model
+        [ A.class "avenir" ]
+        [ PresetsForm.view model.presetsForm |> H.map PresetsFormMsg
         , fieldCardsView model
         , modifierListView model
         , H.div

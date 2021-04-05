@@ -6,6 +6,7 @@
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
+            "TSFoster/elm-tuple-extra": "2.0.0",
             "arturopala/elm-monocle": "2.2.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
@@ -17,16 +18,34 @@
             "elm-community/array-extra": "2.3.0",
             "elm-community/basics-extra": "4.1.0",
             "elm-community/dict-extra": "2.4.0",
+            "elm-community/list-extra": "8.3.0",
             "elm-community/maybe-extra": "5.2.0",
             "elm-community/random-extra": "3.1.0",
             "elm-community/result-extra": "2.4.0",
             "elm-explorations/test": "1.2.2",
+            "jxxcarlson/elm-stat": "5.0.0",
             "tesk9/accessible-html": "4.0.0"
         },
         "indirect": {
+            "avh4/elm-color": "1.0.0",
+            "elm/regex": "1.0.0",
+            "elm/svg": "1.0.1",
             "elm/time": "1.0.0",
             "elm/virtual-dom": "1.0.2",
-            "owanturist/elm-union-find": "1.0.0"
+            "elm-community/typed-svg": "6.0.0",
+            "folkertdev/elm-deque": "3.0.1",
+            "folkertdev/one-true-path-experiment": "4.0.3",
+            "folkertdev/svg-path-lowlevel": "3.0.0",
+            "gampleman/elm-visualization": "2.1.1",
+            "ianmackenzie/elm-float-extra": "1.1.0",
+            "ianmackenzie/elm-geometry": "1.2.1",
+            "ianmackenzie/elm-interval": "1.0.1",
+            "ianmackenzie/elm-triangular-mesh": "1.1.0",
+            "justinmimbs/date": "3.2.1",
+            "justinmimbs/time-extra": "1.1.0",
+            "owanturist/elm-union-find": "1.0.0",
+            "ryannhg/date-format": "2.3.0",
+            "zgohr/elm-csv": "1.0.1"
         }
     },
     "test-dependencies": {

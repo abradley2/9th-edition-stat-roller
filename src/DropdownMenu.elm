@@ -1,9 +1,10 @@
 module DropdownMenu exposing (..)
 
+import Html exposing (node)
+import Accessibility as H
 import Accessibility.Role exposing (menu, menuItem)
 import Accessibility.Widget exposing (hasMenuPopUp, hidden)
 import Browser.Dom exposing (Error, focus)
-import Html as H
 import Html.Attributes as A
 import Html.Events as E
 import Json.Decode as D
@@ -29,7 +30,7 @@ update msg model =
             ( False
             , Task.attempt
                 ElementFocused
-                (focus menuId)
+                (focus <| menuId ++ "--button")
             )
 
 
@@ -63,6 +64,7 @@ view model config =
                 , ( "light-blue w-100", isJust config.selectedLabel )
                 , ( "white-50 w4", isNothing config.selectedLabel )
                 ]
+            , A.id <| config.id ++ "--button"
             , hasMenuPopUp
             , E.onClick (ToggleMenuOpen (not model))
             ]
@@ -78,7 +80,7 @@ view model config =
         , H.div
             [ A.class "relative"
             ]
-            [ H.node "focus-menu"
+            [ node "focus-menu"
                 [ A.class <|
                     "flex-column absolute mt1 left-0 right-0 "
                         ++ "absolute bg-black ph2 pv1 br3 ba b--light-blue"
