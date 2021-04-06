@@ -90,7 +90,7 @@ type alias PartialModel a =
 view : Model -> H.Html Msg
 view model =
     H.div
-        [ A.class "flex justify-center mt4"
+        [ A.class "flex justify-center pt4"
         ]
         [ H.div
             []
@@ -124,6 +124,8 @@ attackerPresets =
             >> Fields.strengthValue.set (Just 4)
             >> Fields.damageValue.set (Just <| Run.Fixed 1)
             >> Fields.attackCountValue.set (Just 2)
+            >> Fields.armorPenetrationValue.set Nothing
+            >> (\model -> { model | weaponSkillModifier = Nothing })
             >> (\model -> { model | woundModifier = Just shurikenWeapons })
       )
     , ( "Wraithblade w/ Ghostaxe"
@@ -132,6 +134,8 @@ attackerPresets =
             >> Fields.damageValue.set (Just (Roll 3))
             >> Fields.attackCountValue.set (Just 2)
             >> Fields.armorPenetrationValue.set (Just 3)
+            >> (\model -> { model | weaponSkillModifier = Nothing })
+            >> (\model -> { model | woundModifier = Nothing })
       )
     ]
 
