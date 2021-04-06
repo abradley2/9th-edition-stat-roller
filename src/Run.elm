@@ -76,10 +76,11 @@ run_ seed setup phase nextPhase currentDamage =
                             ( nextSeed, nextDie, nextMod ) =
                                 rollDie currentRoll seed
 
-                            withSetupMod = Batch
-                                [ MaybeMod nextMod
-                                , MaybeMod setup.woundModifier
-                                ]
+                            withSetupMod =
+                                Batch
+                                    [ MaybeMod nextMod
+                                    , MaybeMod setup.woundModifier
+                                    ]
 
                             nextWounds =
                                 case nextDie.state of
@@ -157,10 +158,10 @@ run_ seed setup phase nextPhase currentDamage =
                                             ( damageDice, currentDamage + val )
 
                                         Roll val ->
-                                            ( Die val 1 NotRolled nextMod nextDie.id :: damageDice, currentDamage )
-                                _ ->
-                                    (damageDice, currentDamage)
+                                            ( Die val 1 NotRolled Nothing nextDie.id :: damageDice, currentDamage )
 
+                                _ ->
+                                    ( damageDice, currentDamage )
                     in
                     run_
                         nextSeed
@@ -184,9 +185,13 @@ run_ seed setup phase nextPhase currentDamage =
                         ( nextSeed, nextDie, _ ) =
                             rollDie currentRoll seed
 
-                        rollVal = case nextDie.state of
-                            Passed val -> val
-                            _ -> -100000000
+                        rollVal =
+                            case nextDie.state of
+                                Passed val ->
+                                    val
+
+                                _ ->
+                                    -1000
                     in
                     run_
                         nextSeed
