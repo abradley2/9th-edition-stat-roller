@@ -3,11 +3,11 @@ module ModifierForm exposing (..)
 import Accessibility as H exposing (fieldset)
 import Accessibility.Widget exposing (disabled)
 import Button
+import Die exposing (Compare(..), Modifier(..))
 import DropdownMenu
 import FieldParser exposing (formatPassValue, parsePassValue)
 import Html.Attributes as A
 import Html.Events as E
-import Die exposing (Compare(..), Modifier(..))
 import TextInput
 
 
@@ -45,7 +45,9 @@ formatModifier nextPhase mod =
         Die.InfluenceNext nextMod ->
             formatModifier "" nextMod ++ " on " ++ nextPhase
 
-        _ -> ""
+        _ ->
+            ""
+
 
 type alias Model_ =
     { compareDropdownMenu : DropdownMenu.Model
@@ -325,11 +327,13 @@ view nextPhase model config =
                 [ view_ nextPhase model_ config False
                     |> H.map config.mapMsg
                 , H.div
-                    [ A.class "white pa3"
+                    [ A.class "white pa3 flex items-center"
                     ]
                     [ H.button
-                        ((A.id "apply-modifier-button")
-                            :: (case modelToModifier model_ of
+                        ([ A.id "apply-modifier-button"
+                         , A.class ""
+                         ]
+                            ++ (case modelToModifier model_ of
                                     Just mod ->
                                         [ disabled False
                                         , A.class Button.baseButtonClass
@@ -343,6 +347,14 @@ view nextPhase model config =
                                )
                         )
                         [ H.text "Apply Modifier" ]
+                    , case modelToModifier model_ of
+                        Just mod ->
+                            H.span
+                                [ A.class "mt1 ml2 f7 white-80"]
+                                [ H.text <| formatModifier (Maybe.withDefault "" nextPhase) mod ]
+
+                        Nothing ->
+                            H.text ""
                     ]
                 ]
 

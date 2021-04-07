@@ -476,12 +476,13 @@ modifierListView model =
             , Maybe.map (formatModifier "Save" >> (++) "On Roll to Wound: " >> H.text) model.woundModifier
             , Maybe.map (formatModifier "" >> (++) "On Roll to Save: " >> H.text) model.saveModifier
             ]
+            |> List.filter isJust
 
         modCount =
             List.filter isJust modDesc |> List.length
     in
     H.div
-        [ A.class "avenir white-70 tc pb2"
+        [ A.class "avenir white-70 tc pb2 ph0-ns ph2"
         ]
         [ H.div
             [ A.class "tc" ]
@@ -503,7 +504,7 @@ modifierListView model =
 fieldCardsView : Model -> H.Html Msg
 fieldCardsView model =
     H.div
-        [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m"
+        [ A.class "helvetica pa3 white-80 flex flex-wrap flex-row center-m mw8 center"
         ]
         [ cardView (Just <| OpenModifierForm WeaponSkill) model.fields.weaponSkill.id <|
             H.div
