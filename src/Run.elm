@@ -158,7 +158,7 @@ run_ seed setup phase nextPhase currentDamage =
                                             ( damageDice, currentDamage + val )
 
                                         Roll val ->
-                                            ( Die val 1 NotRolled Nothing nextDie.id :: damageDice, currentDamage )
+                                            ( Die val 1 NotRolled nextMod nextDie.id :: damageDice, currentDamage )
 
                                 _ ->
                                     ( damageDice, currentDamage )

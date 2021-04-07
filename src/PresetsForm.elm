@@ -167,9 +167,7 @@ disgustinglyReslient : Int -> Modifier
 disgustinglyReslient save =
     Die.Compare Die.Lte
         (save - 1)
-        (Die.InfluenceNext <|
-            Die.Compare Die.Always 0 (Die.Reroll (Just 5))
-        )
+        (Die.Reroll (Just 5))
 
 
 weaponSkillPresets : List ( String, Modifier )
