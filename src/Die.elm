@@ -147,8 +147,8 @@ rollDie_ die seed =
         Reroll mNewVal ->
             let
                 rerollDie =
-                    Maybe.map (\passValue -> { nextDie | passValue = passValue }) mNewVal
-                        |> Maybe.withDefault nextDie
+                    Maybe.map (\passValue -> { nextDie | passValue = passValue, modifier = Nothing }) mNewVal
+                        |> Maybe.withDefault { nextDie | modifier = Nothing }
                         |> (\d -> { d | state = NotRolled })
             in
             rollDie_ rerollDie nextSeed

@@ -150,6 +150,7 @@ defenderPresets =
     , ( "Primaris Intercessor"
       , Fields.toughnessValue.set (Just 4)
             >> Fields.saveValue.set (Just 3)
+            >> (\model -> { model | saveModifier = Nothing })
       )
     ]
 
