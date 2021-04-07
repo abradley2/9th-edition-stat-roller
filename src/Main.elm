@@ -349,16 +349,16 @@ modalView model =
     in
     H.div
         [ A.classList
-            [ ( "fixed helvetica top-0 left-0 right-0 bg-white-30 overflow-hidden", True )
+            [ ( "fixed helvetica top-0 left-0 right-0 bg-white-40 overflow-hidden", True )
             , ( "bottom--100", isOpen == False )
-            , ( "bottom-0", isOpen == True )
+            , ( "bottom--0", isOpen == True )
             ]
         , A.style "transition" ".3s"
         , dialog
         ]
         [ node "focus-trap"
             [ A.classList
-                [ ( "relative w-90 w-70-m w-50-l center bg-black-80 br3 ba b--light-blue shadow-1", True )
+                [ ( "relative w-90 w-70-m w-50-l mw7 center bg-black-80 br3 ba b--light-blue shadow-1", True )
                 , ( "pa2 db", True )
                 , ( "mt0", isOpen == False )
                 , ( "mt6", isOpen == True )
