@@ -1,6 +1,6 @@
 dependencies:
+  '@abradley2/elm-coverage': 0.3.0
   elm: 0.19.1-5
-  elm-coverage: 0.3.0
   elm-test: 0.19.1-revision5
   parcel-bundler: 1.12.4
 devDependencies:
@@ -14,6 +14,29 @@ devDependencies:
   node-elm-compiler: 5.0.5
 lockfileVersion: 5.2
 packages:
+  /@abradley2/elm-coverage/0.3.0:
+    dependencies:
+      binwrap: 0.2.3
+      bluebird: 3.7.2
+      cross-spawn: 5.1.0
+      elm: 0.19.1-5
+      elm-test: 0.19.1-revision5
+      find: 0.2.9
+      fs-extra: 4.0.3
+      lodash: 4.17.21
+      moment: 2.29.1
+      opn: 5.5.0
+      request: 2.88.2
+      table: 5.4.6
+      tmp: 0.0.33
+      touch: 3.1.0
+      upgrade: 1.1.0
+      yargs: 15.4.1
+    dev: false
+    hasBin: true
+    requiresBuild: true
+    resolution:
+      integrity: sha512-NbMkEnFlppTr8M2Ok9YQPHjQHnDIZt2m/RXbRbcDXmAgyqFOoxMPnG2HeJDL+of8pExgfRY59b9Nc9DszFJjRg==
   /@babel/code-frame/7.12.11:
     dependencies:
       '@babel/highlight': 7.10.4
@@ -2396,29 +2419,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-IMqzv5wNQf+E6aHeIqATs0tOLeOTwj1QKbRcS3jBbYkl5oLAserA8yJTT7/VyHUYG91PRmPyeQDObKLPpeS4dw==
-  /elm-coverage/0.3.0:
-    dependencies:
-      binwrap: 0.2.3
-      bluebird: 3.7.2
-      cross-spawn: 5.1.0
-      elm: 0.19.1-5
-      elm-test: 0.19.1-revision6
-      find: 0.2.9
-      fs-extra: 4.0.3
-      lodash: 4.17.21
-      moment: 2.29.1
-      opn: 5.5.0
-      request: 2.88.2
-      table: 5.4.6
-      tmp: 0.0.33
-      touch: 3.1.0
-      upgrade: 1.1.0
-      yargs: 15.4.1
-    dev: false
-    hasBin: true
-    requiresBuild: true
-    resolution:
-      integrity: sha512-WHlO9LCu6DLzlIPR28GqcCgtyy6ZjRKBR+c6yYwy7m2o0D0buuLsr3wsZxJBjZYmwregmWRseUOM3DzHmoiIzg==
   /elm-hot/1.1.5:
     dev: true
     resolution:
@@ -2442,25 +2442,6 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-QJPzXMjdnba5+gX3IlPbcwulisYP+Sf92z6w39wP7Sq/8lyI5NQGcWEBD1NavIl0ERtWBVbFp0RvHXbParwxXA==
-  /elm-test/0.19.1-revision6:
-    dependencies:
-      chalk: 4.1.0
-      chokidar: 3.5.1
-      commander: 7.2.0
-      cross-spawn: 7.0.3
-      elm-tooling: 1.3.0
-      glob: 7.1.6
-      graceful-fs: 4.2.6
-      rimraf: 3.0.2
-      split: 1.0.1
-      which: 2.0.2
-      xmlbuilder: 15.1.1
-    dev: false
-    engines:
-      node: '>=10.13.0'
-    hasBin: true
-    resolution:
-      integrity: sha512-4VbIyCRlCUm/py0E0AjMT3/mwd6DR4Y5Z5gEox6z5JII6ZdKIJmcQzjgWRI5qo5ERJiw9M/Nxhk7SGXFUbZsxQ==
   /elm-tooling/1.3.0:
     dev: false
     hasBin: true
@@ -3045,7 +3026,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.29
+      mime-types: 2.1.30
     dev: false
     engines:
       node: '>= 0.12'
@@ -4113,20 +4094,20 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-115fLhvZVqWwHPbClyntxEVfVDfl9DLLTuJvq3g2O/Oxi8AiNouAHvDSzHS0viUJc+V5vm3eq91Xwqn9dp4jRA==
-  /mime-db/1.46.0:
+  /mime-db/1.47.0:
     dev: false
     engines:
       node: '>= 0.6'
     resolution:
-      integrity: sha512-svXaP8UQRZ5K7or+ZmfNhg2xX3yKDMUzqadsSqi4NCH/KomcH75MAMYAGVlvXn4+b/xOPhS3I2uHKRUzvjY7BQ==
-  /mime-types/2.1.29:
+      integrity: sha512-QBmA/G2y+IfeS4oktet3qRZ+P5kPhCKRXxXnQEudYqUaEioAU1/Lq2us3D/t1Jfo4hE9REQPrbB7K5sOczJVIw==
+  /mime-types/2.1.30:
     dependencies:
-      mime-db: 1.46.0
+      mime-db: 1.47.0
     dev: false
     engines:
       node: '>= 0.6'
     resolution:
-      integrity: sha512-Y/jMt/S5sR9OaqteJtslsFZKWOIIqMACsJSiHghlCAyhf7jfVYjKBmLiX8OgpWeW+fjJ2b+Az69aPFPkUOY6xQ==
+      integrity: sha512-crmjA4bLtR8m9qLpHvgxSChT+XoSlZi8J4n/aIdn3z92e/U47Z0V/yl+Wh9W046GgFVAmoNR/fmdbZYcSSIUeg==
   /mime/1.6.0:
     dev: false
     engines:
@@ -5460,7 +5441,7 @@ packages:
       is-typedarray: 1.0.0
       isstream: 0.1.2
       json-stringify-safe: 5.0.1
-      mime-types: 2.1.29
+      mime-types: 2.1.30
       oauth-sign: 0.9.0
       performance-now: 2.1.0
       qs: 6.5.2
@@ -6656,10 +6637,10 @@ packages:
       node: '>=0.4'
     resolution:
       integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
-  /y18n/4.0.1:
+  /y18n/4.0.3:
     dev: false
     resolution:
-      integrity: sha512-wNcy4NvjMYL8gogWWYAO7ZFWFfHcbdbE57tZO8e4cbpj8tfUcwrwqSl3ad8HxpYWCdXcJUCeKKZS62Av1affwQ==
+      integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==
   /yallist/2.1.2:
     dev: false
     resolution:
@@ -6687,7 +6668,7 @@ packages:
       set-blocking: 2.0.0
       string-width: 4.2.2
       which-module: 2.0.0
-      y18n: 4.0.1
+      y18n: 4.0.3
       yargs-parser: 18.1.3
     dev: false
     engines:
@@ -6695,9 +6676,9 @@ packages:
     resolution:
       integrity: sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==
 specifiers:
+  '@abradley2/elm-coverage': ^0.3.0
   cssnano: ^4.1.10
   elm: ^0.19.1-5
-  elm-coverage: ^0.3.0
   elm-hot: ^1.1.5
   elm-test: 0.19.1-revision5
   eslint: ^7.18.0
