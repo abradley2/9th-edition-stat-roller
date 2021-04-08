@@ -91,6 +91,7 @@ view : Model -> H.Html Msg
 view model =
     H.div
         [ A.class "flex justify-center pt4"
+        , A.id "preset-form"
         ]
         [ H.div
             []

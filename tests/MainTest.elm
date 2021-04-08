@@ -2,14 +2,14 @@ module MainTest exposing (..)
 
 import Accessibility.Role exposing (menu)
 import Accessibility.Widget exposing (hasMenuPopUp)
-import Expect exposing (fail)
+import Die
+import Expect exposing (fail, pass)
 import Html as H
 import Json.Decode as D
 import Json.Encode as E
 import Main exposing (..)
 import Maybe.Extra exposing (isJust)
 import Result.Extra as ResultX
-import Die
 import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
@@ -237,7 +237,6 @@ suite =
                                 ]
                                 click
                         )
-
                     |> Result.map
                         (Expect.all
                             [ .model
@@ -251,6 +250,46 @@ suite =
                                             )
                                     )
                             ]
+                        )
+                    |> Result.mapError fail
+                    |> ResultX.merge
+        , test "The user can utilize the preset form to quickly get going" <|
+            \_ ->
+                initTestApp
+                    |> (\testApp ->
+                            userInteraction testApp
+                                [ id "preset-form"
+                                , id "attacker-preset-dropdown"
+                                , attribute menu
+                                , containing
+                                    [ text "Craftworld Guardian"
+                                    ]
+                                ]
+                                click
+                       )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp
+                                [ id "preset-form"
+                                , id "defender-preset-dropdown"
+                                , attribute menu
+                                , containing
+                                    [ text "Plague Marine"
+                                    ]
+                                ]
+                                click
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.unitCount.id ] (changeEvent "10")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id "submit-button" ] click
+                        )
+                    |> Result.map
+                        (\testApp ->
+                            Expect.true "Expected result to be a Just value" <| isJust testApp.model.result
                         )
                     |> Result.mapError fail
                     |> ResultX.merge
