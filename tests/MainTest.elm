@@ -9,12 +9,14 @@ import Json.Decode as D
 import Json.Encode as E
 import Main exposing (..)
 import Maybe.Extra exposing (isJust)
+import PresetsForm exposing (defenderPresets)
 import Result.Extra as ResultX
+import Run exposing (woundPassValue)
 import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
-import Run exposing (woundPassValue)
+import PresetsForm exposing (attackerPresets)
 
 
 type alias TestApp =
@@ -294,8 +296,8 @@ suite =
                         )
                     |> Result.mapError fail
                     |> ResultX.merge
-        , test "Wound pass value" 
-            <| \_ ->
+        , test "Wound pass value" <|
+            \_ ->
                 Expect.all
                     [ woundPassValue 2 >> Expect.equal 6
                     , woundPassValue 3 >> Expect.equal 5
@@ -304,4 +306,56 @@ suite =
                     , woundPassValue 8 >> Expect.equal 2
                     ]
                     4
+        , test "The defender presets dropdown works for all possible options" <|
+            \_ ->
+                initTestApp
+                    |> (\testApp ->
+                            defenderPresets
+                                |> List.map
+                                    (\( presetName, presetConfig ) ->
+                                        userInteraction testApp
+                                            [ id "preset-form"
+                                            , id "defender-preset-dropdown"
+                                            , attribute menu
+                                            , containing
+                                                [ text presetName
+                                                ]
+                                            ]
+                                            click
+                                            |> Result.map
+                                                (\nextTestApp ->
+                                                    always (Expect.equal (presetConfig testApp.model) nextTestApp.model)
+                                                )
+                                    )
+                                |> ResultX.combine
+                       )
+                    |> Result.map (\extList -> Expect.all extList ())
+                    |> Result.mapError fail
+                    |> ResultX.merge
+        , test "The attacker presets dropdown works for all possible options" <|
+            \_ ->
+                initTestApp
+                    |> (\testApp ->
+                            attackerPresets
+                                |> List.map
+                                    (\( presetName, presetConfig ) ->
+                                        userInteraction testApp
+                                            [ id "preset-form"
+                                            , id "attacker-preset-dropdown"
+                                            , attribute menu
+                                            , containing
+                                                [ text presetName
+                                                ]
+                                            ]
+                                            click
+                                            |> Result.map
+                                                (\nextTestApp ->
+                                                    always (Expect.equal (presetConfig testApp.model) nextTestApp.model)
+                                                )
+                                    )
+                                |> ResultX.combine
+                       )
+                    |> Result.map (\extList -> Expect.all extList ())
+                    |> Result.mapError fail
+                    |> ResultX.merge
         ]
