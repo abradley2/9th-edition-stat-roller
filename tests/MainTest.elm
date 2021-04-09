@@ -14,6 +14,7 @@ import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
+import Run exposing (woundPassValue)
 
 
 type alias TestApp =
@@ -293,4 +294,14 @@ suite =
                         )
                     |> Result.mapError fail
                     |> ResultX.merge
+        , test "Wound pass value" 
+            <| \_ ->
+                Expect.all
+                    [ woundPassValue 2 >> Expect.equal 6
+                    , woundPassValue 3 >> Expect.equal 5
+                    , woundPassValue 4 >> Expect.equal 4
+                    , woundPassValue 5 >> Expect.equal 3
+                    , woundPassValue 8 >> Expect.equal 2
+                    ]
+                    4
         ]

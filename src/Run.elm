@@ -31,18 +31,18 @@ type Phase
     | Resolve Int
 
 
-woundPassValue : Setup -> Int
-woundPassValue setup =
-    if setup.strength >= setup.toughness * 2 then
+woundPassValue : Int -> Int -> Int
+woundPassValue strength toughness =
+    if strength >= toughness * 2 then
         2
 
-    else if setup.strength > setup.toughness then
+    else if strength > toughness then
         3
 
-    else if setup.strength == setup.toughness then
+    else if strength == toughness then
         4
 
-    else if setup.strength * 2 <= setup.toughness then
+    else if strength * 2 <= toughness then
         6
 
     else
@@ -86,7 +86,7 @@ run_ seed setup phase nextPhase currentDamage =
                                 case nextDie.state of
                                     Passed _ ->
                                         Die 6
-                                            (woundPassValue setup)
+                                            (woundPassValue setup.strength setup.toughness)
                                             NotRolled
                                             (Just withSetupMod)
                                             nextDie.id
@@ -206,21 +206,3 @@ run_ seed setup phase nextPhase currentDamage =
         _ ->
             -1
 
-
-printPhase : Phase -> String
-printPhase p =
-    case p of
-        Attack _ ->
-            "Attack"
-
-        Wound _ ->
-            "Wound"
-
-        Save _ ->
-            "Save"
-
-        Damage _ ->
-            "Damage"
-
-        Resolve _ ->
-            "Resolve"
