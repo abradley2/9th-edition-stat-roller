@@ -9,14 +9,13 @@ import Json.Decode as D
 import Json.Encode as E
 import Main exposing (..)
 import Maybe.Extra exposing (isJust)
-import PresetsForm exposing (defenderPresets)
+import PresetsForm exposing (attackerPresets, defenderPresets)
 import Result.Extra as ResultX
 import Run exposing (woundPassValue)
 import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
-import PresetsForm exposing (attackerPresets)
 
 
 type alias TestApp =
@@ -358,4 +357,28 @@ suite =
                     |> Result.map (\extList -> Expect.all extList ())
                     |> Result.mapError fail
                     |> ResultX.merge
+        , test "The modifier form will pre-populate when there is an applied attack preset that contains a modifier" <|
+            \_ ->
+                initTestApp
+                    |> (\testApp ->
+                            userInteraction testApp
+                                [ id "preset-form"
+                                , id "attacker-preset-dropdown"
+                                , attribute menu
+                                , containing
+                                    [ text "Craftworld Guardian"
+                                    ]
+                                ]
+                                click
+                       )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp
+                                [ id <| testApp.model.fields.weaponSkill.id ++ "--modal-button"
+                                ]
+                                click
+                        )
+                    |> Result.mapError fail
+                    |> ResultX.merge
+
         ]
