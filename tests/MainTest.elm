@@ -2,7 +2,7 @@ module MainTest exposing (..)
 
 import Accessibility.Role exposing (menu)
 import Accessibility.Widget exposing (hasMenuPopUp)
-import Die
+import Die exposing (Compare(..))
 import DropdownMenu
 import Expect exposing (fail, pass)
 import Html as H
@@ -17,6 +17,8 @@ import Test exposing (..)
 import Test.Html.Event as Event exposing (click)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
+import Fields exposing (armorPenetration)
+import ModifierForm
 
 
 type alias TestApp =
@@ -122,6 +124,59 @@ suite =
                             , .model >> .fields >> .strength >> .value >> Expect.equal (Just 4)
                             , .model >> .fields >> .toughness >> .value >> Expect.equal (Just 4)
                             , .model >> .fields >> .save >> .value >> Expect.equal (Just 3)
+                            , .model >> .result >> isJust >> Expect.true "Result should be filled"
+                            ]
+                        )
+                    |> Result.mapError fail
+                    |> ResultX.merge
+        , test "The user can fill out the form and submit (alternate values" <|
+            \_ ->
+                initTestApp
+                    |> (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                       )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.unitCount.id ] (changeEvent "10")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.attackCount.id ] (changeEvent "2")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.strength.id ] (changeEvent "4")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.toughness.id ] (changeEvent "4")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.armorPenetration.id ] (changeEvent "-3")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.save.id ] (changeEvent "3")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id testApp.model.fields.damage.id ] (changeEvent "D3")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ id "submit-button" ] click
+                        )
+                    |> Result.map
+                        (Expect.all
+                            [ .model >> .fields >> .weaponSkill >> .value >> Expect.equal (Just 3)
+                            , .model >> .fields >> .unitCount >> .value >> Expect.equal (Just 10)
+                            , .model >> .fields >> .attackCount >> .value >> Expect.equal (Just 2)
+                            , .model >> .fields >> .strength >> .value >> Expect.equal (Just 4)
+                            , .model >> .fields >> .toughness >> .value >> Expect.equal (Just 4)
+                            , .model >> .fields >> .save >> .value >> Expect.equal (Just 3)
+                            , .model >> .fields >> .armorPenetration >> .value >> Expect.equal (Just 3)
+                            , .model >> .fields >> .damage >> .value >> Expect.equal (Just <| Run.Roll 3)
                             , .model >> .result >> isJust >> Expect.true "Result should be filled"
                             ]
                         )
@@ -416,4 +471,12 @@ suite =
                         )
                     |> Result.mapError fail
                     |> ResultX.merge
+        , test "Compare labels read as expected" <|
+            \_ -> Expect.all
+                [ (\fn -> fn Lte) >> Expect.equal "Less than or equal to"
+                , (\fn -> fn Gte) >> Expect.equal "Greater than or equal to"
+                , (\fn -> fn Always) >> Expect.equal "Always"
+                , (\fn -> fn Eq) >> Expect.equal "Equal to"
+                ]
+                ModifierForm.compareLabel
         ]
