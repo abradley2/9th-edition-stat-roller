@@ -3,6 +3,7 @@ module MainTest exposing (..)
 import Accessibility.Role exposing (menu)
 import Accessibility.Widget exposing (hasMenuPopUp)
 import Die
+import DropdownMenu
 import Expect exposing (fail, pass)
 import Html as H
 import Json.Decode as D
@@ -54,6 +55,14 @@ changeEvent value =
           )
         ]
     )
+
+
+queryPath : H.Html a -> List Selector -> Query.Single a
+queryPath html selectors =
+    List.foldl
+        (\selector query -> Query.find [ selector ] query)
+        (Query.fromHtml html)
+        selectors
 
 
 userInteraction : TestApp -> List Selector -> ( String, D.Value ) -> Result String TestApp
@@ -364,21 +373,47 @@ suite =
                             userInteraction testApp
                                 [ id "preset-form"
                                 , id "attacker-preset-dropdown"
-                                , attribute menu
-                                , containing
-                                    [ text "Craftworld Guardian"
-                                    ]
+                                , attribute hasMenuPopUp
                                 ]
                                 click
                        )
                     |> Result.andThen
                         (\testApp ->
                             userInteraction testApp
-                                [ id <| testApp.model.fields.weaponSkill.id ++ "--modal-button"
+                                [ id "preset-form"
+                                , id "defender-preset-dropdown"
+                                , attribute hasMenuPopUp
                                 ]
                                 click
                         )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp
+                                [ id "preset-form"
+                                , id "attacker-preset-dropdown"
+                                , attribute menu
+                                , containing
+                                    [ text "Craftworld Guardian"
+                                    ]
+                                ]
+                                click
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp
+                                [ id <| testApp.model.fields.strength.id ++ "--modal-button"
+                                ]
+                                click
+                        )
+                    |> Result.map
+                        (\testApp ->
+                            queryPath testApp.view
+                                [ id "modal-view"
+                                , id "modifier-form--compare-condition-dropdown"
+                                , id "modifier-form--compare-condition-dropdown--button"
+                                ]
+                                |> Query.contains [ H.text "Equal to" ]
+                        )
                     |> Result.mapError fail
                     |> ResultX.merge
-
         ]

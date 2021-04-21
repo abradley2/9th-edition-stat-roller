@@ -1,10 +1,10 @@
 module DropdownMenu exposing (..)
 
-import Html exposing (node)
 import Accessibility as H
 import Accessibility.Role exposing (menu, menuItem)
 import Accessibility.Widget exposing (hasMenuPopUp, hidden)
 import Browser.Dom exposing (Error, focus)
+import Html exposing (node)
 import Html.Attributes as A
 import Html.Events as E
 import Json.Decode as D
@@ -61,7 +61,7 @@ view model config =
             [ A.classList
                 [ ( "black-80 b--light-blue bg-black helvetica button-reset flex justify-between", True )
                 , ( "pointer outline-0 pa2 shadow-1 br-0 bt bl bb fw1 f5 f6", True )
-                , ( "bt-transparent", True)
+                , ( "bt-transparent", True )
                 , ( "light-blue w-100", isJust config.selectedLabel )
                 , ( "white-50 w4", isNothing config.selectedLabel )
                 ]
