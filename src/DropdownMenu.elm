@@ -60,7 +60,7 @@ view model config =
         [ H.button
             [ A.classList
                 [ ( "black-80 b--light-blue bg-black helvetica button-reset flex justify-between", True )
-                , ( "pointer outline-0 pa2 shadow-1 br-0 bt bl bb fw1 f5 f6", True )
+                , ( "pointer outline-0 pa2 shadow-1 br-0 bt bl bb f6 h2 border-box", True )
                 , ( "bt-transparent", True )
                 , ( "light-blue w-100", isJust config.selectedLabel )
                 , ( "white-50 w4", isNothing config.selectedLabel )

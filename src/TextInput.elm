@@ -14,7 +14,7 @@ view attrs value onInput =
          , A.autocomplete False
          , A.class <|
             "input-reset ba bg-black light-blue hover-bn helvetica border-box "
-                ++ " br-0 bt-0 outline-0 ph2 pv2 tc b--light-blue f6"
+                ++ " br-0 bt-0 outline-0 pa2 h2 tc b--light-blue f6"
          , case value of
             Just val ->
                 A.value val
