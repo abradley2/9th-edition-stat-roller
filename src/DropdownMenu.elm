@@ -121,7 +121,7 @@ buttonView config ( value, label ) =
     H.button
         [ menuItem
         , A.class <|
-            "bg-white-10 light-blue ba pv2 ph1 br2 normal f7 b--light-blue mv1 helvetica "
+            "bg-white-10 bn light-blue pv2 ph1 br2 normal f7 mv1 helvetica "
                 ++ "pointer hover-bg-white-20"
         , E.onClick <| ItemSelected ( value, label ) config.id
         ]
