@@ -1,6 +1,14 @@
+import * as Sentry from "@sentry/browser"
+import { Integrations } from "@sentry/tracing"
 import { Elm } from './Main.elm'
 import FocusMenu from './FocusMenu'
 import FocusTrap from './FocusTrap'
+
+Sentry.init({
+  dsn: "https://d1699f9897784c9e9939be0751ab9524@o609383.ingest.sentry.io/5792114",
+  integrations: [new Integrations.BrowserTracing()],
+  tracesSampleRate: 1.0,
+});
 
 const loader = document.getElementById('loader')
 document.body.removeChild(loader)

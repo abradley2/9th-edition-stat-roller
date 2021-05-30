@@ -125,4 +125,4 @@ buttonView config ( value, label ) =
                 ++ "pointer hover-bg-white-20"
         , E.onClick <| ItemSelected ( value, label ) config.id
         ]
-        [ H.text label ]
+        [ H.span [ A.class "pt2" ] [ H.text label ] ]

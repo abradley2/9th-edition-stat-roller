@@ -13,9 +13,16 @@
   "license": "ISC",
   "dependencies": {
     "@abradley2/elm-coverage": "^0.3.0",
+    "@sentry/browser": "^6.4.1",
+    "@sentry/core": "^6.4.1",
+    "@sentry/hub": "^6.4.1",
+    "@sentry/minimal": "^6.4.1",
+    "@sentry/tracing": "^6.4.1",
+    "@sentry/utils": "^6.4.1",
     "elm": "^0.19.1-5",
     "elm-test": "0.19.1-revision5",
-    "parcel-bundler": "^1.12.4"
+    "parcel-bundler": "^1.12.4",
+    "tslib": "^2.2.0"
   },
   "devDependencies": {
     "cssnano": "^4.1.10",
