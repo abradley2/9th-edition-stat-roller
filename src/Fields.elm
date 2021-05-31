@@ -22,6 +22,7 @@ type alias Fields =
     , damage : Field FixedOrRoll
     , toughness : Field Int
     , save : Field Int
+    , feelNoPain : Field Int
     }
 
 
@@ -39,6 +40,7 @@ init =
     , damage = initDamage
     , toughness = Field "toughness" "Toughness" Nothing Nothing
     , save = Field "save" "Save" Nothing Nothing
+    , feelNoPain = Field "feel-no-pain" "Feel No Pain" Nothing Nothing
     }
 
 
@@ -196,3 +198,17 @@ saveValue =
 saveError : Lens (Model b) (Maybe String)
 saveError =
     Compose.lensWithLens fieldError save
+
+
+feelNoPain : Lens (Model b) (Field Int)
+feelNoPain =
+    Compose.lensWithLens
+        (Lens .feelNoPain (\b a -> { a | feelNoPain = b }))
+        fields
+
+
+feelNoPainValue : Lens (Model b) (Maybe Int)
+feelNoPainValue =
+    Compose.lensWithLens
+        fieldValue
+        feelNoPain

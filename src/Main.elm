@@ -47,6 +47,7 @@ type Msg
     | ToughnessChanged String
     | SaveChanged String
     | WeaponSkillChanged String
+    | FeelNoPainChanged String
     | RunInput Run.Setup
     | AppliedPreset Model
     | ToggleArmorPenetrationField Bool
@@ -129,10 +130,22 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        FeelNoPainChanged val ->
+            ( Fields.feelNoPainValue.set (parsePassValue val) model
+            , Cmd.none
+            )
+
         ToggleArmorPenetrationField isEnabled ->
             ( { model
                 | enableArmorPenetrationField = isEnabled
               }
+                |> (\m ->
+                        if not isEnabled then
+                            Fields.armorPenetrationValue.set Nothing m
+
+                        else
+                            m
+                   )
             , Cmd.none
             )
 
@@ -140,6 +153,13 @@ update msg model =
             ( { model
                 | enableFeelNoPainField = isEnabled
               }
+                |> (\m ->
+                        if not isEnabled then
+                            Fields.feelNoPainValue.set Nothing m
+
+                        else
+                            m
+                   )
             , Cmd.none
             )
 
@@ -717,6 +737,28 @@ fieldCardsView model =
                     _ ->
                         H.text ""
                 ]
+        , if model.enableFeelNoPainField then
+            cardView Nothing model.fields.feelNoPain.id <|
+                H.div
+                    [ A.class "pv2 inline-flex flex-column items-center" ]
+                    [ TextInput.view
+                        [ required True
+                        , A.class "w3"
+                        , A.attribute "input-placeholder" "5+"
+                        , A.attribute "input-id" model.fields.save.id
+                        ]
+                        (Fields.feelNoPainValue.get model |> Maybe.map String.fromInt)
+                        (Fields.feelNoPainValue.get model |> Maybe.map formatPassValue)
+                        FeelNoPainChanged
+                    , H.label
+                        [ A.class "f7 fw5 pt2"
+                        , A.for model.fields.feelNoPain.id
+                        ]
+                        [ H.text model.fields.feelNoPain.label ]
+                    ]
+
+          else
+            H.text ""
         ]
 
 
