@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@abradley2/elm-coverage': ^0.3.0
+  '@parcel/transformer-elm': 2.0.0-beta.2
   '@sentry/browser': ^6.4.1
   '@sentry/core': ^6.4.1
   '@sentry/hub': ^6.4.1
@@ -35,6 +36,7 @@ dependencies:
   tslib: 2.2.0
 
 devDependencies:
+  '@parcel/transformer-elm': 2.0.0-beta.2_elm@0.19.1-5
   cssnano: 4.1.10
   elm-hot: 1.1.5
   eslint: 7.18.0
@@ -1322,7 +1324,6 @@ packages:
     dependencies:
       json-source-map: 0.6.1
       nullthrows: 1.1.1
-    dev: false
 
   /@parcel/events/2.0.0-beta.2:
     resolution: {integrity: sha512-kbiFb/Qd8TavhmL84FTg3dN29Zi5Bi8bWqMgzA8hq7E8W5ezXpmw1Tu5wkjsNzHuOTj2YcAtxlTh3l29UEmh2g==}
@@ -1528,7 +1529,6 @@ packages:
     engines: {node: '>= 12.0.0'}
     dependencies:
       '@parcel/types': 2.0.0-beta.2
-    dev: false
 
   /@parcel/reporter-cli/2.0.0-beta.2:
     resolution: {integrity: sha512-OmuFVMjifauy29vQMEeYeorNmOoZ3kbjB5peUt6vZ3y3lP+OmentlXw1MHl9QudCzSl/PlK1HKotKaHLLUBdFA==}
@@ -1662,6 +1662,23 @@ packages:
       semver: 5.7.1
     dev: false
 
+  /@parcel/transformer-elm/2.0.0-beta.2_elm@0.19.1-5:
+    resolution: {integrity: sha512-1gg5uia4NNgcFIdGMcKLXald8uevqg6WUfEtaQNL95hK+ZEphMh9A9johH9YKTahWAVxZvMoz26apgwpIszmQQ==}
+    engines: {node: '>= 12.0.0', parcel: ^2.0.0-alpha.3.1}
+    peerDependencies:
+      elm: ^0.19.1-5
+    dependencies:
+      '@parcel/diagnostic': 2.0.0-beta.2
+      '@parcel/plugin': 2.0.0-beta.2
+      command-exists: 1.2.9
+      cross-spawn: 7.0.3
+      elm: 0.19.1-5
+      elm-hot: 1.1.5
+      node-elm-compiler: 5.0.5
+      nullthrows: 1.1.1
+      terser: 5.7.0
+    dev: true
+
   /@parcel/transformer-html/2.0.0-beta.2:
     resolution: {integrity: sha512-+tzf/FtVKaQXOHdPbtOTJJd91krH1qkj3bzpT7Mzg+zN/iCN2nvg8C7pMHwxQJlqB4Lc4TuLlZDI8ztYHqKT6A==}
     engines: {node: '>= 12.0.0', parcel: ^2.0.0-beta.1}
@@ -1764,7 +1781,6 @@ packages:
 
   /@parcel/types/2.0.0-beta.2:
     resolution: {integrity: sha512-ri2BPGAFDntQbA5p3m/4QgnEqWYToUMkAtLelXSPbwnTM0KARavTAwSRqz1xwTdXa8gQyv4SSV7xURwaPaZ3GA==}
-    dev: false
 
   /@parcel/utils/2.0.0-beta.2:
     resolution: {integrity: sha512-v8vFGdUY/IuuL7dvmdNxhv4TowgqYDxupToxEvMix1GePRx7QTV1ugy/uWgMXhNIytFo4qyo1fWD7VcXLMS1TQ==}
@@ -2356,7 +2372,6 @@ packages:
 
   /buffer-from/1.1.1:
     resolution: {integrity: sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==}
-    dev: false
 
   /buffer-xor/1.0.3:
     resolution: {integrity: sha1-JuYe0UIvtw3ULm42cp7VHYVf6Nk=}
@@ -2614,11 +2629,9 @@ packages:
 
   /command-exists/1.2.9:
     resolution: {integrity: sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==}
-    dev: false
 
   /commander/2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
-    dev: false
 
   /commander/5.1.0:
     resolution: {integrity: sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==}
@@ -4590,7 +4603,6 @@ packages:
 
   /json-source-map/0.6.1:
     resolution: {integrity: sha512-1QoztHPsMQqhDq0hlXY5ZqcEdUzxQEIxgFkKl4WUp2pgShObl+9ovi4kRh2TfvAfxAoHOJ9vIMEqk3k4iex7tg==}
-    dev: false
 
   /json-stable-stringify-without-jsonify/1.0.1:
     resolution: {integrity: sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=}
@@ -5012,7 +5024,6 @@ packages:
 
   /nullthrows/1.1.1:
     resolution: {integrity: sha512-2vPPEi+Z7WqML2jZYddDIfy5Dqb0r2fze2zTxNNknZaFpVHU3mFB3R+DWeJWGVx0ecvttSGlJTI+WG+8Z4cDWw==}
-    dev: false
 
   /nwsapi/2.2.0:
     resolution: {integrity: sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==}
@@ -6347,7 +6358,6 @@ packages:
     dependencies:
       buffer-from: 1.1.1
       source-map: 0.6.1
-    dev: false
 
   /source-map-url/0.4.1:
     resolution: {integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==}
@@ -6365,7 +6375,6 @@ packages:
   /source-map/0.7.3:
     resolution: {integrity: sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==}
     engines: {node: '>= 8'}
-    dev: false
 
   /spdx-correct/3.1.1:
     resolution: {integrity: sha512-cOYcUWwhCuHCXi49RhFRCyJEK3iPj1Ziz9DpViV3tbZOwXD49QzIN3MpOLJNxh2qwq2lJJZaKMVw9qNi4jTC0w==}
@@ -6675,7 +6684,6 @@ packages:
       commander: 2.20.3
       source-map: 0.7.3
       source-map-support: 0.5.19
-    dev: false
 
   /text-table/0.2.0:
     resolution: {integrity: sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=}

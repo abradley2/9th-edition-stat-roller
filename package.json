@@ -2,7 +2,7 @@
   "name": "elm-roller",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.html",
   "scripts": {
     "test": "elm-test",
     "coverage": "elm-coverage",
@@ -25,6 +25,7 @@
     "tslib": "^2.2.0"
   },
   "devDependencies": {
+    "@parcel/transformer-elm": "2.0.0-beta.2",
     "cssnano": "^4.1.10",
     "elm-hot": "^1.1.5",
     "eslint": "^7.18.0",
