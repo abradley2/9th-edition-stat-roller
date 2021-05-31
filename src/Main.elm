@@ -6,6 +6,7 @@ import Accessibility.Widget exposing (hasDialogPopUp, modal, required)
 import Basics.Extra exposing (flip)
 import Browser exposing (element)
 import Button
+import Checkbox
 import Die exposing (Compare(..), Modifier(..))
 import FieldParser exposing (formatArmorPenetration, formatFixedOrRoll, formatPassValue, parseArmorPenetration, parseFixedOrRoll, parsePassValue)
 import Fields exposing (Fields)
@@ -48,6 +49,8 @@ type Msg
     | WeaponSkillChanged String
     | RunInput Run.Setup
     | AppliedPreset Model
+    | ToggleArmorPenetrationField Bool
+    | ToggleFeelNoPainField Bool
 
 
 type alias Flags =
@@ -68,6 +71,8 @@ type alias Model =
     , saveModifier : Maybe Modifier
     , fields : Fields
     , result : Maybe Float
+    , enableArmorPenetrationField : Bool
+    , enableFeelNoPainField : Bool
     }
 
 
@@ -114,6 +119,8 @@ init flagsJson =
       , saveModifier = Nothing
       , modifierCategory = Save
       , result = Nothing
+      , enableArmorPenetrationField = False
+      , enableFeelNoPainField = False
       }
     , Cmd.none
     )
@@ -122,6 +129,20 @@ init flagsJson =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ToggleArmorPenetrationField isEnabled ->
+            ( { model
+                | enableArmorPenetrationField = isEnabled
+              }
+            , Cmd.none
+            )
+
+        ToggleFeelNoPainField isEnabled ->
+            ( { model
+                | enableFeelNoPainField = isEnabled
+              }
+            , Cmd.none
+            )
+
         PresetsFormMsg presetsFormMsg ->
             let
                 ( presetsForm, presetsFormCmd, nextModel ) =
@@ -307,9 +328,9 @@ update msg model =
 cardView : Maybe Msg -> String -> H.Html Msg -> H.Html Msg
 cardView optionsHandler optionId body =
     H.div
-        [ A.class "pa2 w-50 w-33-ns w-33-m w-20-l relative" ]
+        [ A.class "pa2 w-50 w-33-ns w-33-m w-20-l relative animate__animated animate__flipInX animate__faster" ]
         [ H.div
-            [ A.class "shadow-1 bg-black-40 ph3 pt2 pb3 br3 flex justify-center"
+            [ A.class "shadow-1 bg-black-40 ph3 pt2 pb3 flex justify-center"
             ]
             [ body ]
         , case optionsHandler of
@@ -412,11 +433,34 @@ modalView model =
         ]
 
 
+fieldTogglesView : Model -> H.Html Msg
+fieldTogglesView model =
+    H.div
+        [ A.class "flex flex-wrap justify-center pt4 pb3 white"
+        ]
+        [ Checkbox.checkboxView
+            { label = "Armor Penetration"
+            , onToggle = ToggleArmorPenetrationField
+            , isChecked = model.enableArmorPenetrationField
+            , id = "armor-penetration-toggle"
+            , class = Nothing
+            }
+        , Checkbox.checkboxView
+            { label = "Feel No Pain"
+            , onToggle = ToggleFeelNoPainField
+            , isChecked = model.enableFeelNoPainField
+            , id = "feel-no-pain-toggle"
+            , class = Just "ml4"
+            }
+        ]
+
+
 view : Model -> H.Html Msg
 view model =
     H.div
         [ A.class "avenir pb3" ]
         [ PresetsForm.view model.presetsForm |> H.map PresetsFormMsg
+        , fieldTogglesView model
         , fieldCardsView model
         , modifierListView model
         , H.div
@@ -591,24 +635,28 @@ fieldCardsView model =
                     Nothing ->
                         H.text ""
                 ]
-        , cardView Nothing model.fields.armorPenetration.id <|
-            H.div
-                [ A.class "pv2 inline-flex flex-column items-center" ]
-                [ TextInput.view
-                    [ required True
-                    , A.class "w3"
-                    , A.attribute "input-placeholder" "-1"
-                    , A.attribute "input-id" model.fields.armorPenetration.id
+        , if model.enableArmorPenetrationField then
+            cardView Nothing model.fields.armorPenetration.id <|
+                H.div
+                    [ A.class "pv2 inline-flex flex-column items-center" ]
+                    [ TextInput.view
+                        [ required True
+                        , A.class "w3"
+                        , A.attribute "input-placeholder" "-1"
+                        , A.attribute "input-id" model.fields.armorPenetration.id
+                        ]
+                        (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
+                        (Fields.armorPenetrationValue.get model |> Maybe.map formatArmorPenetration)
+                        ArmorPenetrationChanged
+                    , H.label
+                        [ A.class "f7 fw5 pt2"
+                        , A.for model.fields.armorPenetration.id
+                        ]
+                        [ H.text model.fields.armorPenetration.label ]
                     ]
-                    (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
-                    (Fields.armorPenetrationValue.get model |> Maybe.map formatArmorPenetration)
-                    ArmorPenetrationChanged
-                , H.label
-                    [ A.class "f7 fw5 pt2"
-                    , A.for model.fields.armorPenetration.id
-                    ]
-                    [ H.text model.fields.armorPenetration.label ]
-                ]
+
+          else
+            H.text ""
         , cardView Nothing model.fields.damage.id <|
             H.div
                 [ A.class "pv2 inline-flex flex-column items-center" ]

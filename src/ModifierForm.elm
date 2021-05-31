@@ -331,7 +331,7 @@ view nextPhase model config =
                     ]
                     [ H.button
                         ([ A.id "apply-modifier-button"
-                         , A.class "fl mr2"
+                         , A.class "fl mr3"
                          ]
                             ++ (case modelToModifier model_ of
                                     Just mod ->
