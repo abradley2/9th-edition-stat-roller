@@ -17,11 +17,11 @@ import List
 import Maybe.Extra exposing (andMap, isJust)
 import ModifierForm exposing (formatModifier)
 import PresetsForm
-import Tuple3
 import Random exposing (Seed)
 import Result.Extra as ResultX
 import Run
 import TextInput
+import Tuple3
 
 
 type ModifierCategory
@@ -130,7 +130,6 @@ update msg model =
                         model.presetsForm
                         |> Tuple3.mapSecond (Cmd.map PresetsFormMsg)
                         |> Tuple3.mapThird (\apply -> apply model)
-                        
             in
             ( { nextModel | presetsForm = presetsForm }, presetsFormCmd )
 
@@ -416,7 +415,7 @@ modalView model =
 view : Model -> H.Html Msg
 view model =
     H.div
-        [ A.class "avenir" ]
+        [ A.class "avenir pb3" ]
         [ PresetsForm.view model.presetsForm |> H.map PresetsFormMsg
         , fieldCardsView model
         , modifierListView model
@@ -476,28 +475,29 @@ modifierListView model =
             , Maybe.map (formatModifier "Save" >> (++) "On Roll to Wound: " >> H.text) model.woundModifier
             , Maybe.map (formatModifier "" >> (++) "On Roll to Save: " >> H.text) model.saveModifier
             ]
-            |> List.filter isJust
+                |> List.map (Maybe.map (\t -> H.li [ A.class "pv1" ] [ t ]))
+                |> List.filter isJust
 
         modCount =
             List.filter isJust modDesc |> List.length
     in
     H.div
         [ A.class "avenir white-70 tc pb2 ph0-ns ph2"
+        , A.attribute "aria-live" "polite"
         ]
         [ H.div
-            [ A.class "tc" ]
+            [ A.class "w5 center tc" ]
             [ H.text "Modifiers Applied:" ]
-        , H.div
-            [ A.class "tc pv1 f7 white lh-copy" ]
-            [ if modCount == 0 then
-                H.span [] [ H.text "None" ]
+        , if modCount == 0 then
+            H.span [ A.class "pv2 dib f7" ] [ H.text "(None)" ]
 
-              else
-                H.div []
-                    (List.map (Maybe.withDefault (H.text "")) modDesc
-                        |> List.intersperse (H.br [])
-                    )
-            ]
+          else
+            H.div
+                [ A.class "w5 center" ]
+                [ H.ul
+                    [ A.class "f7 tl" ]
+                    (Maybe.Extra.values modDesc)
+                ]
         ]
 
 
@@ -512,9 +512,10 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "4+"
-                    , A.id model.fields.weaponSkill.id
+                    , A.attribute "input-placeholder" "4+"
+                    , A.attribute "input-id" model.fields.weaponSkill.id
                     ]
+                    (Fields.weaponSkillValue.get model |> Maybe.map String.fromInt)
                     (Fields.weaponSkillValue.get model |> Maybe.map formatPassValue)
                     WeaponSkillChanged
                 , H.label
@@ -536,10 +537,11 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "5"
-                    , A.id model.fields.unitCount.id
+                    , A.attribute "input-placeholder" "5"
+                    , A.attribute "input-id" model.fields.unitCount.id
                     ]
                     (Fields.unitCountValue.get model |> Maybe.map String.fromInt)
+                    Nothing
                     UnitCountChanged
                 , H.label
                     [ A.class "f7 fw5 pt2"
@@ -553,10 +555,11 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "2"
-                    , A.id model.fields.attackCount.id
+                    , A.attribute "input-placeholder" "2"
+                    , A.attribute "input-id" model.fields.attackCount.id
                     ]
                     (Fields.attackCountValue.get model |> Maybe.map String.fromInt)
+                    Nothing
                     AttackCountChanged
                 , H.label
                     [ A.class "f7 fw5 pt2"
@@ -570,10 +573,11 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "3"
-                    , A.id model.fields.strength.id
+                    , A.attribute "input-placeholder" "3"
+                    , A.attribute "input-id" model.fields.strength.id
                     ]
                     (Fields.strengthValue.get model |> Maybe.map String.fromInt)
+                    Nothing
                     StrengthChanged
                 , H.label
                     [ A.class "f7 fw5 pt2"
@@ -593,9 +597,10 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "-1"
-                    , A.id model.fields.armorPenetration.id
+                    , A.attribute "input-placeholder" "-1"
+                    , A.attribute "input-id" model.fields.armorPenetration.id
                     ]
+                    (Fields.armorPenetrationValue.get model |> Maybe.map String.fromInt)
                     (Fields.armorPenetrationValue.get model |> Maybe.map formatArmorPenetration)
                     ArmorPenetrationChanged
                 , H.label
@@ -610,11 +615,12 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "D3"
-                    , A.id model.fields.damage.id
+                    , A.attribute "input-placeholder" "D3"
+                    , A.attribute "input-id" model.fields.damage.id
                     ]
                     (Fields.damageValue.get model |> Maybe.map formatFixedOrRoll)
-                    DamageChanged
+                    Nothing
+                    (String.toUpper >> DamageChanged)
                 , H.label
                     [ A.class "f7 fw5 pt2"
                     , A.for model.fields.damage.id
@@ -627,10 +633,11 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "4"
-                    , A.id model.fields.toughness.id
+                    , A.attribute "input-placeholder" "4"
+                    , A.attribute "input-id" model.fields.toughness.id
                     ]
                     (Fields.toughnessValue.get model |> Maybe.map String.fromInt)
+                    Nothing
                     ToughnessChanged
                 , H.label
                     [ A.class "f7 fw5 pt2"
@@ -644,9 +651,10 @@ fieldCardsView model =
                 [ TextInput.view
                     [ required True
                     , A.class "w3"
-                    , A.placeholder "5+"
-                    , A.id model.fields.save.id
+                    , A.attribute "input-placeholder" "5+"
+                    , A.attribute "input-id" model.fields.save.id
                     ]
+                    (Fields.saveValue.get model |> Maybe.map String.fromInt)
                     (Fields.saveValue.get model |> Maybe.map formatPassValue)
                     SaveChanged
                 , H.label

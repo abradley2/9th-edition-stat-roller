@@ -6,6 +6,7 @@ import Die exposing (Compare(..))
 import DropdownMenu
 import Expect exposing (fail, pass)
 import Html as H
+import Html.Attributes as A
 import Json.Decode as D
 import Json.Encode as E
 import Main exposing (..)
@@ -48,12 +49,10 @@ flagsJson =
 
 changeEvent : String -> ( String, D.Value )
 changeEvent value =
-    ( "change"
+    ( "newval"
     , E.object
-        [ ( "target"
-          , E.object
-                [ ( "value", E.string value )
-                ]
+        [ ( "detail"
+          , E.string value
           )
         ]
     )
@@ -79,6 +78,8 @@ userInteraction testApp selectors ev =
         |> Result.map (\model -> TestApp model (view model))
 
 
+inputId = A.attribute "input-id" >> attribute
+
 suite : Test
 suite =
     describe "The main module"
@@ -86,31 +87,31 @@ suite =
             \_ ->
                 initTestApp
                     |> (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                            userInteraction testApp [ inputId testApp.model.fields.weaponSkill.id ] (changeEvent "3")
                        )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.unitCount.id ] (changeEvent "10")
+                            userInteraction testApp [ inputId testApp.model.fields.unitCount.id ] (changeEvent "10")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.attackCount.id ] (changeEvent "2")
+                            userInteraction testApp [ inputId testApp.model.fields.attackCount.id ] (changeEvent "2")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.strength.id ] (changeEvent "4")
+                            userInteraction testApp [ inputId testApp.model.fields.strength.id ] (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.toughness.id ] (changeEvent "4")
+                            userInteraction testApp [ inputId testApp.model.fields.toughness.id ] (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.save.id ] (changeEvent "3")
+                            userInteraction testApp [ inputId testApp.model.fields.save.id ] (changeEvent "3")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.damage.id ] (changeEvent "1")
+                            userInteraction testApp [ inputId testApp.model.fields.damage.id ] (changeEvent "1")
                         )
                     |> Result.andThen
                         (\testApp ->
@@ -133,35 +134,35 @@ suite =
             \_ ->
                 initTestApp
                     |> (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                            userInteraction testApp [ inputId testApp.model.fields.weaponSkill.id ] (changeEvent "3")
                        )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.unitCount.id ] (changeEvent "10")
+                            userInteraction testApp [ inputId testApp.model.fields.unitCount.id ] (changeEvent "10")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.attackCount.id ] (changeEvent "2")
+                            userInteraction testApp [ inputId testApp.model.fields.attackCount.id ] (changeEvent "2")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.strength.id ] (changeEvent "4")
+                            userInteraction testApp [ inputId testApp.model.fields.strength.id ] (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.toughness.id ] (changeEvent "4")
+                            userInteraction testApp [ inputId testApp.model.fields.toughness.id ] (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.armorPenetration.id ] (changeEvent "-3")
+                            userInteraction testApp [ inputId testApp.model.fields.armorPenetration.id ] (changeEvent "-3")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.save.id ] (changeEvent "3")
+                            userInteraction testApp [ inputId testApp.model.fields.save.id ] (changeEvent "3")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.damage.id ] (changeEvent "D3")
+                            userInteraction testApp [ inputId testApp.model.fields.damage.id ] (changeEvent "D3")
                         )
                     |> Result.andThen
                         (\testApp ->
@@ -212,7 +213,7 @@ suite =
                         (\testApp ->
                             userInteraction testApp
                                 [ id "modal-view"
-                                , id "modifier-form--compare-condition-value"
+                                , inputId "modifier-form--compare-condition-value"
                                 ]
                                 (changeEvent "6")
                         )
@@ -290,7 +291,7 @@ suite =
                         (\testApp ->
                             userInteraction testApp
                                 [ id "modal-view"
-                                , id "modifier-form--subsequent--value-mod"
+                                , inputId "modifier-form--subsequent--value-mod"
                                 ]
                                 (changeEvent "3")
                         )
@@ -347,7 +348,7 @@ suite =
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id testApp.model.fields.unitCount.id ] (changeEvent "10")
+                            userInteraction testApp [ inputId testApp.model.fields.unitCount.id ] (changeEvent "10")
                         )
                     |> Result.andThen
                         (\testApp ->

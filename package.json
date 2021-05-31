@@ -21,7 +21,7 @@
     "@sentry/utils": "^6.4.1",
     "elm": "^0.19.1-5",
     "elm-test": "0.19.1-revision5",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^2.0.0-beta.2",
     "tslib": "^2.2.0"
   },
   "devDependencies": {

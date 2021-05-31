@@ -3,6 +3,7 @@ import { Integrations } from "@sentry/tracing"
 import { Elm } from './Main.elm'
 import FocusMenu from './FocusMenu'
 import FocusTrap from './FocusTrap'
+import TextInput from './TextInput'
 
 Sentry.init({
   dsn: "https://d1699f9897784c9e9939be0751ab9524@o609383.ingest.sentry.io/5792114",
@@ -21,6 +22,8 @@ const seeds = crypto.getRandomValues(new Uint16Array(1000))
 
 window.customElements.define('focus-menu', FocusMenu)
 window.customElements.define('focus-trap', FocusTrap)
+window.customElements.define('text-input', TextInput)
+console.log('initialize please')
 
 Elm.Main.init({
   node,

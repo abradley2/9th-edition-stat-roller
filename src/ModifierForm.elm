@@ -327,11 +327,11 @@ view nextPhase model config =
                 [ view_ nextPhase model_ config False
                     |> H.map config.mapMsg
                 , H.div
-                    [ A.class "white pa3 flex items-center"
+                    [ A.class "white pa3 cf"
                     ]
                     [ H.button
                         ([ A.id "apply-modifier-button"
-                         , A.class ""
+                         , A.class "fl mr2"
                          ]
                             ++ (case modelToModifier model_ of
                                     Just mod ->
@@ -350,7 +350,7 @@ view nextPhase model config =
                     , case modelToModifier model_ of
                         Just mod ->
                             H.span
-                                [ A.class "mt1 ml2 f7 white-80"]
+                                [ A.class "f7 fl mt2 white-80"]
                                 [ H.text <| formatModifier (Maybe.withDefault "" nextPhase) mod ]
 
                         Nothing ->
@@ -411,9 +411,10 @@ view_ nextPhase model config nested =
                 _ ->
                     TextInput.view
                         [ A.class <| "w3"
-                        , A.id (id ++ "--compare-condition-value")
+                        , A.attribute "input-id" (id ++ "--compare-condition-value")
                         ]
                         (model.passValue |> Maybe.map String.fromInt)
+                        Nothing
                         PassValueChanged
                         |> withLabel (id ++ "--compare-condition-value") "Value"
             ]
@@ -444,17 +445,19 @@ view_ nextPhase model config nested =
                 Just ( ValueMod _, _ ) ->
                     TextInput.view
                         [ A.class "w3"
-                        , A.id (id ++ "--value-mod")
+                        , A.attribute "input-id" (id ++ "--value-mod")
                         ]
                         (model.valueMod |> Maybe.map String.fromInt)
+                        Nothing
                         ValueModChanged
                         |> withLabel (id ++ "--value-mod") "Value"
 
                 Just ( RerollNew, _ ) ->
                     TextInput.view
                         [ A.class "w3"
-                        , A.id (id ++ "--new-pass-value")
+                        , A.attribute "input-id" (id ++ "--new-pass-value")
                         ]
+                        (model.newPassValue |> Maybe.map String.fromInt)
                         (model.newPassValue |> Maybe.map formatPassValue)
                         NewPassValueChanged
                         |> withLabel (id ++ "--new-pass-value") "Pass value"
