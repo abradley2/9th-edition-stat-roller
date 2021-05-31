@@ -23,7 +23,6 @@ const seeds = crypto.getRandomValues(new Uint16Array(1000))
 window.customElements.define('focus-menu', FocusMenu)
 window.customElements.define('focus-trap', FocusTrap)
 window.customElements.define('text-input', TextInput)
-console.log('initialize please')
 
 Elm.Main.init({
   node,
