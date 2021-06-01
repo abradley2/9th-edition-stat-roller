@@ -136,7 +136,10 @@ suite =
             \_ ->
                 initTestApp
                     |> (\testApp ->
-                            userInteraction testApp [ id "feel-no-pain-toggle" ] check
+                            userInteraction testApp [ id "feel-no-pain-toggle" ] (check True)
+                       )
+                    |> (\testApp ->
+                            userInteraction testApp [ id "armor-penetration-toggle" ] (check True)
                        )
                     |> Result.andThen
                         (\testApp ->
