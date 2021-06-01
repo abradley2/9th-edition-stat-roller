@@ -5,21 +5,21 @@ import Accessibility.Widget exposing (hasMenuPopUp)
 import Die exposing (Compare(..))
 import DropdownMenu
 import Expect exposing (fail, pass)
+import Fields exposing (armorPenetration)
 import Html as H
 import Html.Attributes as A
 import Json.Decode as D
 import Json.Encode as E
 import Main exposing (..)
 import Maybe.Extra exposing (isJust)
+import ModifierForm
 import PresetsForm exposing (attackerPresets, defenderPresets)
 import Result.Extra as ResultX
 import Run exposing (woundPassValue)
 import Test exposing (..)
-import Test.Html.Event as Event exposing (click)
+import Test.Html.Event as Event exposing (click, check)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
-import Fields exposing (armorPenetration)
-import ModifierForm
 
 
 type alias TestApp =
@@ -78,7 +78,9 @@ userInteraction testApp selectors ev =
         |> Result.map (\model -> TestApp model (view model))
 
 
-inputId = A.attribute "input-id" >> attribute
+inputId =
+    A.attribute "input-id" >> attribute
+
 
 suite : Test
 suite =
@@ -134,8 +136,12 @@ suite =
             \_ ->
                 initTestApp
                     |> (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                            userInteraction testApp [ id "feel-no-pain-toggle" ] check
                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteraction testApp [ inputId testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                        )
                     |> Result.andThen
                         (\testApp ->
                             userInteraction testApp [ inputId testApp.model.fields.unitCount.id ] (changeEvent "10")
@@ -473,11 +479,12 @@ suite =
                     |> Result.mapError fail
                     |> ResultX.merge
         , test "Compare labels read as expected" <|
-            \_ -> Expect.all
-                [ (\fn -> fn Lte) >> Expect.equal "Less than or equal to"
-                , (\fn -> fn Gte) >> Expect.equal "Greater than or equal to"
-                , (\fn -> fn Always) >> Expect.equal "Always"
-                , (\fn -> fn Eq) >> Expect.equal "Equal to"
-                ]
-                ModifierForm.compareLabel
+            \_ ->
+                Expect.all
+                    [ (\fn -> fn Lte) >> Expect.equal "Less than or equal to"
+                    , (\fn -> fn Gte) >> Expect.equal "Greater than or equal to"
+                    , (\fn -> fn Always) >> Expect.equal "Always"
+                    , (\fn -> fn Eq) >> Expect.equal "Equal to"
+                    ]
+                    ModifierForm.compareLabel
         ]
