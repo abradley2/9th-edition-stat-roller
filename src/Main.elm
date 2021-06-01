@@ -90,6 +90,7 @@ modelToSetup model =
         |> andMap (Just <| Fields.armorPenetrationValue.get model)
         |> andMap (Just model.saveModifier)
         |> andMap (Fields.saveValue.get model)
+        |> andMap (Just <| Fields.feelNoPainValue.get model)
 
 
 init : D.Value -> ( Model, Cmd Msg )

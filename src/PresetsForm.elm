@@ -84,6 +84,7 @@ type alias PartialModel a =
         , saveModifier : Maybe Modifier
         , woundModifier : Maybe Modifier
         , weaponSkillModifier : Maybe Modifier
+        , enableFeelNoPainField : Bool
     }
 
 
@@ -146,7 +147,8 @@ defenderPresets =
     [ ( "Plague Marine"
       , Fields.toughnessValue.set (Just 4)
             >> Fields.saveValue.set (Just 3)
-            >> (\model -> { model | saveModifier = Just <| disgustinglyReslient 3 })
+            >> (\model -> { model | enableFeelNoPainField = True })
+            >> Fields.feelNoPainValue.set (Just 5)
       )
     , ( "Primaris Intercessor"
       , Fields.toughnessValue.set (Just 4)

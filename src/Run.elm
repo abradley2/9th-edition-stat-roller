@@ -15,6 +15,7 @@ type alias Setup =
     , armorPenetration : Maybe Int
     , saveModifier : Maybe Modifier
     , save : Int
+    , feelNoPain : Maybe Int
     }
 
 
@@ -28,6 +29,7 @@ type Phase
     | Wound (List Die)
     | Save (List Die)
     | Damage (List Die)
+    | IgnoreWound (List Die)
     | Resolve Int
 
 
@@ -143,7 +145,7 @@ run_ seed setup phase nextPhase currentDamage =
         ( Save dice, Damage damageDice ) ->
             case dice of
                 [] ->
-                    run_ seed setup (Damage damageDice) (Resolve currentDamage) currentDamage
+                    run_ seed setup (Damage damageDice) (Resolve currentDamage) -1
 
                 currentRoll :: nextRolls ->
                     let
@@ -177,8 +179,8 @@ run_ seed setup phase nextPhase currentDamage =
                         seed
                         setup
                         (Resolve woundCount)
-                        (Resolve woundCount)
-                        0
+                        (IgnoreWound <| Maybe.withDefault [] <| Maybe.map (createFeelNoPainRolls woundCount) setup.feelNoPain)
+                        -1
 
                 currentRoll :: nextRolls ->
                     let
@@ -198,11 +200,61 @@ run_ seed setup phase nextPhase currentDamage =
                         setup
                         (Damage nextRolls)
                         (Resolve <| woundCount + rollVal)
-                        0
+                        -1
 
-        ( Resolve result, _ ) ->
-            result
+        ( Resolve result, IgnoreWound rolls ) ->
+            case rolls of
+                [] ->
+                    result
+
+                currentRoll :: nextRolls ->
+                    let
+                        ( nextSeed, nextDie, _ ) =
+                            rollDie currentRoll seed
+                    in
+                    case nextDie.state of
+                        Passed _ ->
+                            run_
+                                nextSeed
+                                setup
+                                (Resolve <| result - 1)
+                                (IgnoreWound nextRolls)
+                                -1
+
+                        _ ->
+                            run_
+                                nextSeed
+                                setup
+                                (Resolve result)
+                                (IgnoreWound nextRolls)
+                                -1
+
+        ( Resolve _, _ ) ->
+            -1
 
         _ ->
             -1
 
+
+createFeelNoPainRolls : Int -> Int -> List Die
+createFeelNoPainRolls =
+    createFeelNoPainRolls_ []
+
+
+createFeelNoPainRolls_ : List Die -> Int -> Int -> List Die
+createFeelNoPainRolls_ rolls woundCount passValue =
+    if woundCount == 0 then
+        rolls
+
+    else
+        createFeelNoPainRolls_
+            ({ sides = 6
+             , passValue = passValue
+             , state = NotRolled
+             , modifier = Nothing
+             , id = woundCount
+             }
+                :: rolls
+            )
+            (woundCount - 1)
+            passValue
