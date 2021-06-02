@@ -61,8 +61,8 @@ type alias Model_ =
     }
 
 
-modifierToModel : Modifier -> Model
-modifierToModel modifier =
+modifierToModel : Maybe String -> Modifier -> Model
+modifierToModel nextPhase modifier =
     Model <|
         case modifier of
             Compare compare passValue resultMod ->
@@ -71,7 +71,7 @@ modifierToModel modifier =
                         case resultMod of
                             Die.InfluenceNext nextMod ->
                                 nextMod
-                                    |> modifierToModel
+                                    |> modifierToModel nextPhase
                                     |> Just
 
                             _ ->
@@ -106,7 +106,7 @@ modifierToModel modifier =
                     , resultModifier =
                         Just
                             ( resultType
-                            , resultTypeLabel Nothing resultType
+                            , resultTypeLabel nextPhase resultType
                             )
                 }
 

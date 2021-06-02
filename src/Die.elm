@@ -19,19 +19,6 @@ type alias Die =
     }
 
 
-extractValue : Die -> Int
-extractValue die =
-    case die.state of
-        Passed val ->
-            val
-
-        Failed val ->
-            val
-
-        _ ->
-            -1
-
-
 checkPass : Random.Seed -> Die -> ( Random.Seed, Die, Int )
 checkPass seed die =
     let

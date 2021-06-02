@@ -280,7 +280,7 @@ update msg model =
                     let
                         modifierForm =
                             model.weaponSkillModifier
-                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.map (ModifierForm.modifierToModel (Just "wound"))
                                 |> Maybe.withDefault ModifierForm.init
                     in
                     ( { model
@@ -295,7 +295,7 @@ update msg model =
                     let
                         modifierForm =
                             model.woundModifier
-                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.map (ModifierForm.modifierToModel (Just "save"))
                                 |> Maybe.withDefault ModifierForm.init
                     in
                     ( { model
@@ -310,7 +310,7 @@ update msg model =
                     let
                         modifierForm =
                             model.saveModifier
-                                |> Maybe.map ModifierForm.modifierToModel
+                                |> Maybe.map (ModifierForm.modifierToModel Nothing)
                                 |> Maybe.withDefault ModifierForm.init
                     in
                     ( { model
@@ -746,7 +746,7 @@ fieldCardsView model =
                         [ required True
                         , A.class "w3"
                         , A.attribute "input-placeholder" "5+"
-                        , A.attribute "input-id" model.fields.save.id
+                        , A.attribute "input-id" model.fields.feelNoPain.id
                         ]
                         (Fields.feelNoPainValue.get model |> Maybe.map String.fromInt)
                         (Fields.feelNoPainValue.get model |> Maybe.map formatPassValue)

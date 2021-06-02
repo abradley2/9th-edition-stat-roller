@@ -17,7 +17,7 @@ import PresetsForm exposing (attackerPresets, defenderPresets)
 import Result.Extra as ResultX
 import Run exposing (woundPassValue)
 import Test exposing (..)
-import Test.Html.Event as Event exposing (click, check)
+import Test.Html.Event as Event exposing (check, click)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector, attribute, containing, id, text)
 
@@ -78,6 +78,10 @@ userInteraction testApp selectors ev =
         |> Result.map (\model -> TestApp model (view model))
 
 
+userInteractionWithErr errMsg testApp selectors ev =
+    userInteraction testApp selectors ev |> Result.mapError (\err -> errMsg ++ ": " ++ err)
+
+
 inputId =
     A.attribute "input-id" >> attribute
 
@@ -132,50 +136,103 @@ suite =
                         )
                     |> Result.mapError fail
                     |> ResultX.merge
-        , test "The user can fill out the form and submit (alternate values" <|
+        , test "The user can fill out the form and submit (alternate values  )" <|
             \_ ->
                 initTestApp
                     |> (\testApp ->
-                            userInteraction testApp [ id "feel-no-pain-toggle" ] (check True)
+                            userInteractionWithErr
+                                "Could not check feel no pain toggle"
+                                testApp
+                                [ id "feel-no-pain-toggle" ]
+                                (check True)
                        )
-                    |> (\testApp ->
-                            userInteraction testApp [ id "armor-penetration-toggle" ] (check True)
-                       )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.weaponSkill.id ] (changeEvent "3")
+                            userInteractionWithErr
+                                "Could not check armor penetration toggle"
+                                testApp
+                                [ id "armor-penetration-toggle" ]
+                                (check True)
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.unitCount.id ] (changeEvent "10")
+                            userInteractionWithErr
+                                "Could not handle weapon skill input"
+                                testApp
+                                [ inputId testApp.model.fields.weaponSkill.id ]
+                                (changeEvent "3")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.attackCount.id ] (changeEvent "2")
+                            userInteractionWithErr
+                                "Could not handle unit count input"
+                                testApp
+                                [ inputId testApp.model.fields.unitCount.id ]
+                                (changeEvent "10")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.strength.id ] (changeEvent "4")
+                            userInteractionWithErr
+                                "Could not handle attack count input"
+                                testApp
+                                [ inputId testApp.model.fields.attackCount.id ]
+                                (changeEvent "2")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.toughness.id ] (changeEvent "4")
+                            userInteractionWithErr
+                                "Could not find strength input"
+                                testApp
+                                [ inputId testApp.model.fields.strength.id ]
+                                (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.armorPenetration.id ] (changeEvent "-3")
+                            userInteractionWithErr
+                                "Could not find toughness input"
+                                testApp
+                                [ inputId testApp.model.fields.toughness.id ]
+                                (changeEvent "4")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.save.id ] (changeEvent "3")
+                            userInteractionWithErr
+                                "Could not find armor penetration field"
+                                testApp
+                                [ inputId testApp.model.fields.armorPenetration.id ]
+                                (changeEvent "-3")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ inputId testApp.model.fields.damage.id ] (changeEvent "D3")
+                            userInteractionWithErr
+                                "Could not find feel no pain value input"
+                                testApp
+                                [ inputId testApp.model.fields.feelNoPain.id ]
+                                (changeEvent "5+")
                         )
                     |> Result.andThen
                         (\testApp ->
-                            userInteraction testApp [ id "submit-button" ] click
+                            userInteractionWithErr
+                                "Could not find save input"
+                                testApp
+                                [ inputId testApp.model.fields.save.id ]
+                                (changeEvent "3")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteractionWithErr
+                                "Could not find damage input"
+                                testApp
+                                [ inputId testApp.model.fields.damage.id ]
+                                (changeEvent "D3")
+                        )
+                    |> Result.andThen
+                        (\testApp ->
+                            userInteractionWithErr
+                                "Could not click submit button"
+                                testApp
+                                [ id "submit-button" ]
+                                click
                         )
                     |> Result.map
                         (Expect.all
